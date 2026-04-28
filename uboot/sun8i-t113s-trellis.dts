@@ -25,9 +25,9 @@
 		compatible = "gpio-leds";
 
 		led-0 {
-			color = <LED_COLOR_ID_GREEN>;
+			color = <LED_COLOR_ID_RED>;
 			function = LED_FUNCTION_HEARTBEAT;
-			gpios = <&pio 4 10 GPIO_ACTIVE_HIGH>; /* PE10 */
+			gpios = <&pio 3 4 GPIO_ACTIVE_HIGH>; /* PD4 */
 		};
 	};
 
@@ -94,8 +94,8 @@
 	vcc-pf-supply = <&reg_3v3>;
 	vcc-pg-supply = <&reg_3v3>;
 
-	uart4_pd_pins: uart4-pd-pins {
-		pins = "PD7", "PD8";
+	uart4_pg_pins: uart4-pg-pins {
+		pins = "PG2", "PG3";
 		function = "uart4";
 	};
 };
@@ -103,7 +103,7 @@
 /* shell */
 &uart4 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&uart4_pd_pins>;
+	pinctrl-0 = <&uart4_pg_pins>;
 	status = "okay";
 };
 
