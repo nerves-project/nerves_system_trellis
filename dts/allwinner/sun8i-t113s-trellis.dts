@@ -115,7 +115,7 @@
 		"","","","","","","","",
 		"","","","","","","","",
 		/* PD */
-		"","","","","LED_1","LED_2","CONFIG_4","CONFIG_3",
+		"","UART2_TX","UART2_RX","","LED_1","LED_2","CONFIG_4","CONFIG_3",
 		"CONFIG_2","CONFIG_1","SPI_CS","SPI_CLK","SPI_MOSI","","","",
 		"EPD_DC","EPD_RESET","EPD_BUSY","","","","","",
 		"","","","","","","","",
