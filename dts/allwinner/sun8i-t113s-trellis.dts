@@ -22,6 +22,14 @@
       serial3 = &uart3;
       serial4 = &uart4;
       serial5 = &uart5;
+      /*
+	  * Pin MMC controller indices so the on-board storage chip is always
+      * mmcblk0 and the ESP32 is always mmcblk1. Without
+	  * these aliases the Linux MMC core assigns host->index by probe
+	  * completion order, which races between the two controllers.
+	  */
+	  mmc0 = &mmc0;
+      mmc1 = &mmc1;
   	};
 
 	chosen {
