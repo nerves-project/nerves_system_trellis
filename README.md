@@ -58,6 +58,16 @@ The most common way of creating a Nerves project using this system is to run
 [Getting started guide](https://hexdocs.pm/nerves/getting-started.html) for more
 information.
 
+To add Trellis as a target to an existing Nerves project in one step, run:
+
+```console
+$ mix igniter.install nerves_system_trellis
+```
+
+This adds the dependency for the `:trellis` target and registers `:trellis` in
+your project's `@all_targets` list. You can then build firmware by exporting
+`MIX_TARGET=trellis`.
+
 Initial flashing of Trellis hardware without an SD card is typically performed
 using FEL mode. This allows you to load firmware onto a blank device over USB
 without needing an SD card slot. You can find the necessary tools and

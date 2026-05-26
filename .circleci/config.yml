@@ -8,10 +8,32 @@ version: 2.1
 orbs:
   build-tools: nerves-project/build-tools@0.3.0
 
+jobs:
+  test:
+    parameters:
+      exec:
+        type: executor
+    executor: << parameters.exec >>
+    steps:
+      - checkout
+      - build-tools/install-elixir:
+          version: $ELIXIR_VERSION
+      - build-tools/install-hex-rebar
+      - build-tools/mix-deps-get
+      - run:
+          name: Run tests
+          command: mix test
+
 workflows:
   version: 2
   build_test_deploy:
     jobs:
+      - test:
+          exec:
+            <<: *exec
+          filters:
+            tags:
+              only: /.*/
       - build-tools/get-br-dependencies:
           exec:
             <<: *exec
