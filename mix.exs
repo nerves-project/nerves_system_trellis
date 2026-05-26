@@ -9,6 +9,10 @@ defmodule NervesSystemTrellis.MixProject do
            |> String.trim()
 
   def project do
+    # The installer test suite exercises the Igniter task only; it does not build
+    # the system, so disable Nerves to avoid requiring the nerves_bootstrap archive.
+    if Mix.env() == :test, do: System.put_env("NERVES_ENV_DISABLED", "1")
+
     [
       app: @app,
       version: @version,
