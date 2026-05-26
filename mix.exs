@@ -70,6 +70,7 @@ defmodule NervesSystemTrellis.MixProject do
       {:nerves_system_br, "1.33.5", runtime: false},
       {:nerves_toolchain_armv7_nerves_linux_gnueabihf, "~> 13.2.0", runtime: false},
       {:nerves_system_linter, "~> 0.4", only: [:dev, :test], runtime: false},
+      {:igniter, "~> 0.6", optional: true, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false}
     ]
   end
@@ -105,6 +106,7 @@ defmodule NervesSystemTrellis.MixProject do
       "uboot",
       "busybox.fragment",
       "dts",
+      "lib",
       "CHANGELOG.md",
       "fwup-ops.conf",
       "fwup.conf",
