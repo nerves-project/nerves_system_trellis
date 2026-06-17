@@ -12,6 +12,16 @@ follows:
    releases, and Linux kernel updates. They're also made to fix bugs and add
    features to the build infrastructure.
 
+## v0.3.1
+
+Bump `nerves_system_br` and `nerves`. This also adds support for the hardware
+PWM, and fixes several clock issues relating to the RTC that slowed down the
+initial startup time. Additionally, this renames the default hostname to
+`nerves-SERIALNUM` to follow convention of other nerves systems.
+
+This is the final release with primary support for the 2025 Goatmire name
+badges. Future releases will target the Nerves Starter Kit.
+
 ## v0.3.0
 
 Bump `nerves_system_br` version to latest. This release also relaxes the fwup
