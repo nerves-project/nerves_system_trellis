@@ -45,7 +45,7 @@ Trellis-based hardware.
 | CPU            | 1.2 GHz Dual-core ARM Cortex-A7                                     |
 | Memory         | 256 MB Integrated DDR3                                              |
 | Storage        | SDIO Flash (on MMC0)                                                |
-| Linux kernel   | 6.12 with patches                                                   |
+| Linux kernel   | 6.18 with patches                                                   |
 | IEx terminal   | UART `ttyS4`                                                        |
 | GPIO, I2C, SPI | Supported via [Elixir Circuits](https://github.com/elixir-circuits) |
 | WiFi           | Various Realtek modules supported                                   |
