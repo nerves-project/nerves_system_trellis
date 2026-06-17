@@ -92,7 +92,7 @@ defmodule NervesSystemTrellis.MixProject do
   defp package do
     [
       files: package_files(),
-      licenses: ["Apache-2.0"],
+      licenses: ["GPL-2.0-only", "GPL-2.0-or-later"],
       links: %{"GitHub" => @source_url}
     ]
   end
@@ -108,7 +108,7 @@ defmodule NervesSystemTrellis.MixProject do
       "CHANGELOG.md",
       "fwup-ops.conf",
       "fwup.conf",
-      "LICENSE",
+      "LICENSES",
       "mix.exs",
       "nerves_defconfig",
       "post-build.sh",
