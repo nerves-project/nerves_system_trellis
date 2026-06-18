@@ -1,27 +1,32 @@
-From 7e5830056a371b6fd530aee5bc97f80429d4c516 Mon Sep 17 00:00:00 2001
+From 7eb9b3b207a280e25c63391158ddbafdff6b7e0f Mon Sep 17 00:00:00 2001
 From: Frank Hunleth <fhunleth@troodon-software.com>
 Date: Fri, 9 May 2025 15:44:26 -0400
 Subject: [PATCH] sunxi: support uart4 console output
 
 ---
- arch/arm/mach-sunxi/board.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/mach-sunxi/board.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/arch/arm/mach-sunxi/board.c b/arch/arm/mach-sunxi/board.c
-index 11a49418225..6b78b8cfe6e 100644
+index 432b1c10..bb2c48ac 100644
 --- a/arch/arm/mach-sunxi/board.c
 +++ b/arch/arm/mach-sunxi/board.c
-@@ -171,6 +171,10 @@ static int gpio_init(void)
+@@ -181,6 +181,15 @@ static int gpio_init(void)
  	sunxi_gpio_set_cfgpin(SUNXI_GPB(6), 7);
  	sunxi_gpio_set_cfgpin(SUNXI_GPB(7), 7);
  	sunxi_gpio_set_pull(SUNXI_GPB(7), SUNXI_GPIO_PULL_UP);
 +#elif CONFIG_CONS_INDEX == 5 && defined(CONFIG_MACH_SUN8I_R528)
-+	sunxi_gpio_set_cfgpin(SUNXI_GPD(7), 5);
++        /* Goatmire Badge */
++	/*sunxi_gpio_set_cfgpin(SUNXI_GPD(7), 5);
 +	sunxi_gpio_set_cfgpin(SUNXI_GPD(8), 5);
-+	sunxi_gpio_set_pull(SUNXI_GPD(8), SUNXI_GPIO_PULL_UP);
++	sunxi_gpio_set_pull(SUNXI_GPD(8), SUNXI_GPIO_PULL_UP);*/
++        /* Nerves starter kit */
++	sunxi_gpio_set_cfgpin(SUNXI_GPG(2), 5);
++	sunxi_gpio_set_cfgpin(SUNXI_GPG(3), 5);
++	sunxi_gpio_set_pull(SUNXI_GPG(3), SUNXI_GPIO_PULL_UP);
  #elif CONFIG_CONS_INDEX == 5 && defined(CONFIG_MACH_SUN8I)
  	sunxi_gpio_set_cfgpin(SUNXI_GPL(2), SUN8I_GPL_R_UART);
  	sunxi_gpio_set_cfgpin(SUNXI_GPL(3), SUN8I_GPL_R_UART);
 -- 
-2.43.0
+2.53.0
 
