@@ -14,8 +14,8 @@
 #include <dt-bindings/pwm/pwm.h>
 
 / {
-	model = "Trellis T113-S4";
-	compatible = "protolux,trellis-t113", "allwinner,sun8i-t113s", "allwinner,sun8i";
+	model = "Nerves Starter Kit";
+	compatible = "protolux,nerves-starter-kit", "allwinner,sun8i-t113s", "allwinner,sun8i";
 
 	aliases {
 		serial0 = &uart0;
@@ -33,7 +33,7 @@
 		led-1 {
 			color = <LED_COLOR_ID_RED>;
 			function = LED_FUNCTION_STATUS;
-			gpios = <&pio 3 4 GPIO_ACTIVE_HIGH>; /* PD */
+			gpios = <&pio 3 4 GPIO_ACTIVE_HIGH>; /* PD4 */
 			linux,default-trigger = "heartbeat";
 		};
 	};
