@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
 // Copyright (C) 2022 Arm Ltd.
 
 #include <dt-bindings/interrupt-controller/irq.h>
@@ -19,16 +19,6 @@
 
 	chosen {
 		stdout-path = "serial4:115200n8";
-	};
-
-	leds {
-		compatible = "gpio-leds";
-
-		led-0 {
-			color = <LED_COLOR_ID_GREEN>;
-			function = LED_FUNCTION_HEARTBEAT;
-			gpios = <&pio 4 10 GPIO_ACTIVE_HIGH>; /* PE10 */
-		};
 	};
 
 	reg_vcc5v: regulator-5v {
@@ -72,20 +62,6 @@
 	clock-frequency = <24000000>;
 };
 
-/* eMMC */
-&mmc0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins>;
-	vmmc-supply = <&reg_3v3>;
-	disable-wp;
-	bus-width = <4>;
-	status = "okay";
-};
-
-&ohci1 {
-	status = "okay";
-};
-
 &pio {
 	vcc-pb-supply = <&reg_3v3>;
 	vcc-pc-supply = <&reg_3v3>;
@@ -94,8 +70,15 @@
 	vcc-pf-supply = <&reg_3v3>;
 	vcc-pg-supply = <&reg_3v3>;
 
+	/* Goatmire Badge */
 	uart4_pd_pins: uart4-pd-pins {
 		pins = "PD7", "PD8";
+		function = "uart4";
+	};
+
+	/* NSK */
+	uart4_pg_pins: uart4-pg-pins {
+		pins = "PG2", "PG3";
 		function = "uart4";
 	};
 };
@@ -103,11 +86,16 @@
 /* shell */
 &uart4 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&uart4_pd_pins>;
+	pinctrl-0 = <&uart4_pg_pins>;
 	status = "okay";
 };
 
-&ehci1 {
+&mmc0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc0_pins>;
+	vmmc-supply = <&reg_3v3>;
+	disable-wp;
+	bus-width = <4>;
 	status = "okay";
 };
 
@@ -119,5 +107,13 @@
 
 &usbphy {
 	usb1_vbus-supply = <&reg_vcc5v>;
+	status = "okay";
+};
+
+&ehci1 {
+	status = "okay";
+};
+
+&ohci1 {
 	status = "okay";
 };
