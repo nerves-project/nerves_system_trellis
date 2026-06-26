@@ -12,6 +12,18 @@ follows:
    releases, and Linux kernel updates. They're also made to fix bugs and add
    features to the build infrastructure.
 
+## v0.4.0
+
+This is a major update with support for the Nerves Starter Kit. It still
+supports the Goatmire badge on OTA updates from previous versions and if you
+modify the U-Boot start script before flashing a new device. The plan is to
+autodetect the device in the next release.
+
+* Changes
+  * linux 6.18.35
+  * GCC 15.3.0
+  * nerves_system_br v1.34.0
+
 ## v0.3.1
 
 Bump `nerves_system_br` and `nerves`. This also adds support for the hardware
