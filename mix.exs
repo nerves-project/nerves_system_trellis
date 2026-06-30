@@ -1,7 +1,7 @@
 defmodule NervesSystemTrellis.MixProject do
   use Mix.Project
 
-  @github_organization "protolux-electronics"
+  @github_organization "nerves-project"
   @app :nerves_system_trellis
   @source_url "https://github.com/#{@github_organization}/#{@app}"
   @version Path.join(__DIR__, "VERSION")
@@ -93,7 +93,11 @@ defmodule NervesSystemTrellis.MixProject do
     [
       files: package_files(),
       licenses: ["GPL-2.0-only", "GPL-2.0-or-later"],
-      links: %{"GitHub" => @source_url}
+      links: %{
+        "GitHub" => @source_url,
+        "REUSE Compliance" =>
+          "https://api.reuse.software/info/github.com/#{@github_organization}/#{@app}"
+      }
     ]
   end
 
