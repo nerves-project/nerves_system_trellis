@@ -12,9 +12,9 @@ defmodule NervesSystemTrellis.MixProject do
     [
       app: @app,
       version: @version,
-      # Because we're using OTP 27, we need to enforce Elixir 1.17 or later.
       elixir: "~> 1.17",
       compilers: Mix.compilers() ++ [:nerves_package],
+      nerves: nerves(),
       nerves_package: nerves_package(),
       description: description(),
       package: package(),
@@ -38,12 +38,25 @@ defmodule NervesSystemTrellis.MixProject do
     [preferred_envs: %{docs: :docs, "hex.build": :docs, "hex.publish": :docs}]
   end
 
+  defp nerves do
+    [
+      actions: [
+        {Nerves.BuildAction.NervesV1System,
+         app: @app,
+         artifact_sites: artifact_sites(),
+         package_env: package_env(),
+         build_runner_opts: build_runner_opts()}
+      ],
+      config: [
+        rootfs_type: :erofs
+      ]
+    ]
+  end
+
   defp nerves_package do
     [
       type: :system,
-      artifact_sites: [
-        {:github_releases, "#{@github_organization}/#{@app}"}
-      ],
+      artifact_sites: artifact_sites(),
       build_runner_opts: build_runner_opts(),
       platform: Nerves.System.BR,
       platform_config: [
@@ -52,15 +65,25 @@ defmodule NervesSystemTrellis.MixProject do
       # The :env key is an optional experimental feature for adding environment
       # variables to the crosscompile environment. These are intended for
       # llvm-based tooling that may need more precise processor information.
-      env: [
-        {"TARGET_ARCH", "arm"},
-        {"TARGET_CPU", "cortex_a7"},
-        {"TARGET_OS", "linux"},
-        {"TARGET_ABI", "gnueabihf"},
-        {"TARGET_GCC_FLAGS",
-         "-mabi=aapcs-linux -mfpu=neon-vfpv4 -marm -fstack-protector-strong -mfloat-abi=hard -mcpu=cortex-a7 -fPIE -pie -Wl,-z,now -Wl,-z,relro"}
-      ],
+      env: package_env(),
       checksum: package_files()
+    ]
+  end
+
+  defp artifact_sites do
+    [
+      {:github_releases, "#{@github_organization}/#{@app}"}
+    ]
+  end
+
+  defp package_env do
+    [
+      {"TARGET_ARCH", "arm"},
+      {"TARGET_CPU", "cortex_a7"},
+      {"TARGET_OS", "linux"},
+      {"TARGET_ABI", "gnueabihf"},
+      {"TARGET_GCC_FLAGS",
+       "-mabi=aapcs-linux -mfpu=neon-vfpv4 -marm -fstack-protector-strong -mfloat-abi=hard -mcpu=cortex-a7 -fPIE -pie -Wl,-z,now -Wl,-z,relro"}
     ]
   end
 
