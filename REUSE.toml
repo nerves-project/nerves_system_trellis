@@ -74,3 +74,10 @@ path = [
 precedence = "aggregate"
 SPDX-FileCopyrightText = "None"
 SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = ["patches/erlang/**/*"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "SPDX-FileCopyrightText: Copyright 2024-2026 Stritzinger GmbH"
+SPDX-License-Identifier = "Apache-2.0"
+
