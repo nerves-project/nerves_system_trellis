@@ -1,0 +1,29 @@
+From 7a758bdd3f8b3c16b8e1fb4b48167ed28a5f7160 Mon Sep 17 00:00:00 2001
+From: Frank Hunleth <fhunleth@troodon-software.com>
+Date: Sun, 27 Sep 2026 12:01:12 -0400
+Subject: [PATCH] Force the JIT to be enabled by default
+
+By default, the ARM32 JIT wouldn't be used. This forces it to be
+enabled.
+
+Signed-off-by: Frank Hunleth <fhunleth@troodon-software.com>
+---
+ erts/configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/erts/configure.ac b/erts/configure.ac
+index 09e5d621c6..75d4b3a77f 100644
+--- a/erts/configure.ac
++++ b/erts/configure.ac
+@@ -224,7 +224,7 @@ AS_HELP_STRING([--disable-jit], [disable JIT support]),
+     no) enable_jit=no ;;
+     *)  enable_jit=yes ;;
+   esac
+-],enable_jit=auto)
++],enable_jit=yes)
+ 
+ AC_ARG_ENABLE(m64-build,
+ AS_HELP_STRING([--enable-m64-build],
+-- 
+2.53.0
+
