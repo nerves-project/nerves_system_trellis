@@ -1,0 +1,90 @@
+    0.000 
+    0.000 
+    0.000 U-Boot 2025.10 (Aug 23 2026 - 21:00:00 +0000) Allwinner Technology
+    0.024 
+    0.024 CPU:   Allwinner R528 (SUN8I)
+    0.024 Model: Trellis T113-S4
+    0.024 DRAM:  256 MiB
+    0.052 Core:  49 devices, 18 uclasses, devicetree: separate
+    0.052 WDT:   Not starting watchdog@20500a0
+    0.052 MMC:   mmc@4020000: 0
+    0.074 Loading Environment from MMC... Reading from MMC(0)... OK
+    0.120 In:    serial@2501000
+    0.120 Out:   serial@2501000
+    0.120 Err:   serial@2501000
+    0.120 Allwinner mUSB OTG (Peripheral)
+    0.142 Net:   using musb-hdrc, OUT ep1out IN ep1in STATUS ep2in
+    0.142 MAC de:ad:be:ef:00:01
+    0.142 HOST MAC de:ad:be:ef:00:00
+    0.142 RNDIS ready
+    0.142 eth0: usb_ether
+    0.142 Hit any key to stop autoboot:  0 
+    0.163 switch to partitions #0, OK
+    0.163 mmc0 is current device
+    0.186 MMC read: dev # 0, block # 26624, count 1 ... 1 blocks read: OK
+    0.186 Working FDT set to 4a000000
+    0.186 MMC read: dev # 0, block # 26624, count 11159 ... 11159 blocks read: OK
+    0.464 ## Loading kernel (any) from FIT Image at 4a000000 ...
+    0.464    Using 'nerves-starter-kit' configuration
+    0.464    Trying 'kernel' kernel subimage
+    0.489    Verifying Hash Integrity ... crc32+ OK
+    0.513 ## Loading fdt (any) from FIT Image at 4a000000 ...
+    0.534    Using 'nerves-starter-kit' configuration
+    0.534    Trying 'fdt-nerves-starter-kit' fdt subimage
+    0.534    Verifying Hash Integrity ... crc32+ OK
+    0.534    Loading fdt from 0x4a5644e0 to 0x41800000
+    0.534    Booting using the fdt blob at 0x41800000
+    0.555 Working FDT set to 41800000
+    0.555    Loading Kernel Image to 40040000
+    0.555    Loading Device Tree to 4af3e000, end 4af45a80 ... OK
+    0.555 Working FDT set to 4af3e000
+    0.576 
+    0.576 Starting kernel ...
+    0.576 
+    0.862 [    0.001189] /cpus/cpu@0 missing clock-frequency property
+    0.887 [    0.001226] /cpus/cpu@1 missing clock-frequency property
+    3.073 Erlang/OTP 29 [erts-17.1.1] [source] [32-bit] [smp:2:2] [ds:2:2:10] [async-threads:1]
+    3.073 
+    3.249 =PROGRESS REPORT==== 17-Oct-2026::20:35:41.959832 ===
+    3.249     supervisor: {local,'Elixir.IEx.Supervisor'}
+    3.249     started: [{pid,<0.402.0>},
+    3.249               {id,'Elixir.IEx.Config'},
+    3.249               {mfargs,{'Elixir.IEx.Config',start_link,[[]]}},
+    3.269               {restart_type,permanent},
+    3.269               {significant,false},
+    3.269               {shutdown,5000},
+    3.269               {child_type,worker}]
+    3.269 
+    3.269 =PROGRESS REPORT==== 17-Oct-2026::20:35:41.961839 ===
+    3.269     supervisor: {local,'Elixir.IEx.Supervisor'}
+    3.290     started: [{pid,<0.403.0>},
+    3.290               {id,'Elixir.IEx.Broker'},
+    3.290               {mfargs,{'Elixir.IEx.Broker',start_link,[[]]}},
+    3.290               {restart_type,permanent},
+    3.290               {significant,false},
+    3.317               {shutdown,5000},
+    3.317               {child_type,worker}]
+    3.317 
+    4.556 Interactive Elixir (1.20.4) - press Ctrl+C to exit (type h() ENTER for help)
+    5.051 [38;5;152mToolshed[0m imported.
+    5.099 iex(1)> [J[38;5;24m████▄▄    [38;5;74m▐███
+    5.326 [38;5;24m█▌  ▀▀██▄▄  [38;5;74m▐█
+    5.326 [38;5;24m█▌  [38;5;74m▄▄  [38;5;24m▀▀  [38;5;74m▐█   [39mN  E  R  V  E  S
+    5.326 [38;5;24m█▌  [38;5;74m▀▀██▄▄  ▐█
+    5.347 [38;5;24m███▌    [38;5;74m▀▀████[0m
+    5.347 [0mboot_bench 0.1.0 - forward-about (68023c57-b9e7-5aba-3771-f19b3c0064f0)
+    5.347 
+    5.347   Serial       : 0123B817BD12A177EE
+    5.347 [0m  Uptime       : 3.731 seconds
+    5.367 [0m  Clock        : [33m2026-10-17 20:35:44 UTC (unsynchronized)[0m
+    5.367 [0m
+    5.367   Firmware     : [32mValid (B)               [0mApplications : 39 started[0m
+    5.367   Memory usage : 49 MB (20%)             [0mPart usage   : 5 MB (3%)[0m
+    5.367   Load average : 0.00 0.00 0.00          [0mTemperature  : N/A[0m
+    5.388   Hostname     : nerves-0123b817bd12a177e[0mPlatform     : trellis arm[0m
+    5.388 
+    5.388   usb0         : 172.31.3.157/30, fe80::54:52ff:fe4c:2/64
+    5.388 [0m
+    5.388 Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
+    5.415 [0m
+    5.415 iex(1)> 

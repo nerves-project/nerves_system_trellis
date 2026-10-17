@@ -1,0 +1,50 @@
+    0.000 
+    0.000 
+    0.000 U-Boot 2025.10 (Aug 23 2026 - 21:00:00 +0000) Allwinner Technology
+    0.023 
+    0.023 CPU:   Allwinner R528 (SUN8I)
+    0.023 Model: Trellis T113-S4
+    0.023 DRAM:  256 MiB
+    0.043 Core:  49 devices, 18 uclasses, devicetree: separate
+    0.043 WDT:   Not starting watchdog@20500a0
+    0.043 MMC:   mmc@4020000: 0
+    0.065 Loading Environment from MMC... Reading from MMC(0)... OK
+    0.112 In:    serial@2501000
+    0.112 Out:   serial@2501000
+    0.112 Err:   serial@2501000
+    0.133 Allwinner mUSB OTG (Peripheral)
+    0.133 Net:   using musb-hdrc, OUT ep1out IN ep1in STATUS ep2in
+    0.133 MAC de:ad:be:ef:00:01
+    0.133 HOST MAC de:ad:be:ef:00:00
+    0.133 RNDIS ready
+    0.133 eth0: usb_ether
+    0.133 Hit any key to stop autoboot:  0 
+    0.156 switch to partitions #0, OK
+    0.156 mmc0 is current device
+    0.177 MMC read: dev # 0, block # 26624, count 1 ... 1 blocks read: OK
+    0.177 Working FDT set to 4a000000
+    0.177 MMC read: dev # 0, block # 26624, count 11159 ... 11159 blocks read: OK
+    0.452 ## Loading kernel (any) from FIT Image at 4a000000 ...
+    0.475    Using 'nerves-starter-kit' configuration
+    0.475    Trying 'kernel' kernel subimage
+    0.475    Verifying Hash Integrity ... crc32+ OK
+    0.525 ## Loading fdt (any) from FIT Image at 4a000000 ...
+    0.525    Using 'nerves-starter-kit' configuration
+    0.525    Trying 'fdt-nerves-starter-kit' fdt subimage
+    0.525    Verifying Hash Integrity ... crc32+ OK
+    0.525    Loading fdt from 0x4a5644e0 to 0x41800000
+    0.546    Booting using the fdt blob at 0x41800000
+    0.546 Working FDT set to 41800000
+    0.546    Loading Kernel Image to 40040000
+    0.546    Loading Device Tree to 4af3e000, end 4af45a80 ... OK
+    0.568 Working FDT set to 4af3e000
+    0.568 
+    0.568 Starting kernel ...
+    0.568 
+    0.854 [    0.001201] /cpus/cpu@0 missing clock-frequency property
+    0.876 [    0.001238] /cpus/cpu@1 missing clock-frequency property
+    2.868 Erlang/OTP 29 [erts-17.1.1] [source] [32-bit] [smp:2:2] [ds:2:2:10] [async-threads:1]
+    2.895 
+    4.865 Interactive Elixir (1.20.4) - press Ctrl+C to exit (type h() ENTER for help)
+    5.370 [38;5;196mToolshed[0m imported.
+    5.392 iex(1)> 

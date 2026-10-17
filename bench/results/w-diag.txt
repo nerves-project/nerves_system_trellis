@@ -1,0 +1,253 @@
+28.810613 32881567
+:ok[22m7131375 Booting Linux on physical CPU 0x0[0m
+[22m7208678 Linux version 6.18.35 (buildroot@buildroot) (armv7-nerves-linux-gnueabihf-gcc (crosstool-NG UNKNOWN) 15.3.0, GNU ld (crosstool-NG UNKNOWN) 2.46.1) #1 SMP PREEMPT Fri Sep  4 15:16:40 UTC 2026[0m
+[22m7209365 CPU: ARMv7 Processor [410fc075] revision 5 (ARMv7), cr=10c5387d[0m
+[33m7130967 Waiting on the following applications to start: [:nerves_runtime, :asn1, :beam_notify, :circular_buffer, :interactive_cmd, :logger_backends, :muontrap, :nerves_time, :nerves_motd, :one_dhcpd, :public_key, :ring_logger, :ssh, :ssh_subsystem_fwup, :nerves_ssh, :vintage_net, :mdns_lite, :vintage_net_direct, :vintage_net_ethernet, :vintage_net_wifi, :nerves_pack, :inets, :runtime_tools, :sasl, :ssl, :toolshed, :boot_bench][0m
+[22m7211269 CPU: div instructions available: patching division code[0m
+[22m7212530 CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache[0m
+[22m7213256 OF: fdt: Machine model: Nerves Starter Kit[0m
+[22m7214267 Memory policy: Data cache writealloc[0m
+[22m7215299 cma: Reserved 16 MiB at 0x4ec00000[0m
+[22m7216308 Zone ranges:[0m
+[22m7217188   Normal   [mem 0x0000000040000000-0x000000004fffffff][0m
+[22m7218143   HighMem  empty[0m
+[22m7219118 Movable zone start for each node[0m
+[22m7220042 Early memory node ranges[0m
+[22m7221226   node   0: [mem 0x0000000040000000-0x000000004fffffff][0m
+[22m7222308 Initmem setup node 0 [mem 0x0000000040000000-0x000000004fffffff][0m
+[22m7223055 OF: reserved mem: Reserved memory: No reserved-memory node in the DT[0m
+[22m7223670 psci: probing for conduit method from DT.[0m
+[22m7224341 psci: Using PSCI v0.1 Function IDs from DT[0m
+[22m7225390 percpu: Embedded 12 pages/cpu s19212 r8192 d21748 u49152[0m
+[36m7226108 pcpu-alloc: s19212 r8192 d21748 u49152 alloc=12*4096[0m
+[36m7226804 pcpu-alloc: [0] 0 [0] 1 [0m
+[22m7227380 Kernel command line: console=ttyS4,115200 quiet g_ether.host_addr=02:54:52:4c:00:01 g_ether.dev_addr=02:54:52:4c:00:02 root=/dev/mmcblk0p2 rootwait[0m
+[22m7227935 printk: log buffer data + meta data: 131072 + 409600 = 540672 bytes[0m
+[22m7228492 Dentry cache hash table entries: 32768 (order: 5, 131072 bytes, linear)[0m
+[22m7229389 Inode-cache hash table entries: 16384 (order: 4, 65536 bytes, linear)[0m
+[22m7230003 Built 1 zonelists, mobility grouping on.  Total pages: 65536[0m
+[22m7230631 mem auto-init: stack:all(zero), heap alloc:off, heap free:off[0m
+[22m7233061 SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=2, Nodes=1[0m
+[22m7233766 rcu: Preemptible hierarchical RCU implementation.[0m
+[22m7234338 rcu: \x09RCU event tracing is enabled.[0m
+[22m7235072 rcu: RCU calculated value of scheduler-enlistment delay is 10 jiffies.[0m
+[22m7235563 NR_IRQS: 16, nr_irqs: 16, preallocated irqs: 16[0m
+[22m7236074 GIC: Using split EOI/Deactivate mode[0m
+[22m7236942 rcu: srcu_init: Setting srcu_struct sizes based on contention.[0m
+[22m7237824 clocksource: timer: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 79635851949 ns[0m
+[22m7238848 arch_timer: cp15 timer running at 24.00MHz (phys).[0m
+[22m7239322 clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x588fe9dc0, max_idle_ns: 440795202592 ns[0m
+[22m7239733 sched_clock: 56 bits at 24MHz, resolution 41ns, wraps every 4398046511097ns[0m
+[22m7240208 Switching to timer-based delay loop, resolution 41ns[0m
+[22m7241766 Console: colour dummy device 80x30[0m
+[22m7244285 Calibrating delay loop (skipped), value calculated using timer frequency.. 48.00 BogoMIPS (lpj=240000)[0m
+[22m7244873 CPU: Testing write buffer coherency: ok[0m
+[22m7245378 pid_max: default: 32768 minimum: 301[0m
+[22m7245979 Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)[0m
+[22m7246513 Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)[0m
+[31m7247082 /cpus/cpu@0 missing clock-frequency property[0m
+[31m7247461 /cpus/cpu@1 missing clock-frequency property[0m
+[22m7248148 CPU0: thread -1, cpu 0, socket 0, mpidr 80000000[0m
+[33m7248690 cacheinfo: Unable to detect cache hierarchy for CPU 0[0m
+[22m7249185 Setting up static identity map for 0x40100000 - 0x40100060[0m
+[22m7249644 rcu: Hierarchical SRCU implementation.[0m
+[22m7250245 rcu: \x09Max phase no-delay instances is 1000.[0m
+[22m7251068 smp: Bringing up secondary CPUs ...[0m
+[22m7251529 CPU1: thread -1, cpu 1, socket 0, mpidr 80000001[0m
+[22m7251892 smp: Brought up 1 node, 2 CPUs[0m
+[22m7252211 SMP: Total of 2 processors activated (96.00 BogoMIPS).[0m
+[22m7252513 CPU: All CPU(s) started in HYP mode.[0m
+[22m7252927 CPU: Virtualization extensions available.[0m
+[22m7253567 Memory: 230980K/262144K available (7168K kernel code, 855K rwdata, 1836K rodata, 1024K init, 228K bss, 13828K reserved, 16384K cma-reserved, 0K highmem)[0m
+[22m7254942 devtmpfs: initialized[0m
+[22m7255573 VFP support v0.3: implementor 41 architecture 2 part 30 variant 7 rev 5[0m
+[22m7256146 clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns[0m
+[22m7256631 posixtimers hash table entries: 1024 (order: 1, 8192 bytes, linear)[0m
+[22m7260586 futex hash table entries: 512 (32768 bytes on 1 NUMA nodes, total 32 KiB, linear).[0m
+[22m7267931 pinctrl core: initialized pinctrl subsystem[0m
+[22m7268489 NET: Registered PF_NETLINK/PF_ROUTE protocol family[0m
+[22m7269334 DMA: preallocated 256 KiB pool for atomic coherent allocations[0m
+[22m7269934 thermal_sys: Registered thermal governor 'step_wise'[0m
+[22m7270565 /soc/clock-controller@2001000: Fixed dependency cycle(s) with /soc/rtc@7090000[0m
+[22m7271199 /soc/clock-controller@7010000: Fixed dependency cycle(s) with /soc/clock-controller@2001000[0m
+[22m7363065 /soc/clock-controller@7010000: Fixed dependency cycle(s) with /soc/rtc@7090000[0m
+[22m7363623 /soc/rtc@7090000: Fixed dependency cycle(s) with /soc/clock-controller@7010000[0m
+[22m7364259 /soc/clock-controller@2001000: Fixed dependency cycle(s) with /soc/rtc@7090000[0m
+[22m7364805 /soc/clock-controller@7010000: Fixed dependency cycle(s) with /soc/clock-controller@2001000[0m
+[22m7365314 /soc/clock-controller@7010000: Fixed dependency cycle(s) with /soc/rtc@7090000[0m
+[22m7365833 /soc/clock-controller@7010000: Fixed dependency cycle(s) with /soc/rtc@7090000[0m
+[22m7366350 /soc/clock-controller@2001000: Fixed dependency cycle(s) with /soc/rtc@7090000[0m
+[22m7366862 /soc/rtc@7090000: Fixed dependency cycle(s) with /soc/clock-controller@7010000[0m
+[22m7367583 usbcore: registered new interface driver usbfs[0m
+[22m7368138 usbcore: registered new interface driver hub[0m
+[22m7368683 usbcore: registered new device driver usb[0m
+[22m7369214 pps_core: LinuxPPS API ver. 1 registered[0m
+[22m7369887 pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>[0m
+[22m7370524 PTP clock support registered[0m
+[22m7371949 clocksource: Switched to clocksource arch_sys_counter[0m
+[22m7372601 NET: Registered PF_INET protocol family[0m
+[22m7373188 IP idents hash table entries: 4096 (order: 3, 32768 bytes, linear)[0m
+[22m7373935 tcp_listen_portaddr_hash hash table entries: 512 (order: 0, 4096 bytes, linear)[0m
+[22m7375262 Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)[0m
+[22m7375908 TCP established hash table entries: 2048 (order: 1, 8192 bytes, linear)[0m
+[22m7376498 TCP bind hash table entries: 2048 (order: 3, 32768 bytes, linear)[0m
+[22m7377120 TCP: Hash tables configured (established 2048 bind 2048)[0m
+[22m7377650 UDP hash table entries: 256 (order: 2, 14336 bytes, linear)[0m
+[22m7378210 UDP-Lite hash table entries: 256 (order: 2, 14336 bytes, linear)[0m
+[22m7378754 NET: Registered PF_UNIX/PF_LOCAL protocol family[0m
+[22m7379371 Initialise system trusted keyrings[0m
+[22m7379905 workingset: timestamp_bits=30 max_order=16 bucket_order=0[0m
+[22m7380442 squashfs: version 4.0 (2009/01/31) Phillip Lougher[0m
+[22m7388373 Key type asymmetric registered[0m
+[22m7389205 Asymmetric key parser 'x509' registered[0m
+[22m7389908 io scheduler mq-deadline registered[0m
+[22m7391005 io scheduler kyber registered[0m
+[22m7392836 io scheduler bfq registered[0m
+[22m7394094 [NervesTime] NervesTime.FileTime reports that the time is ~N[2026-10-17 15:39:58][0m
+[22m7394236 Serial: 8250/16550 driver, 8 ports, IRQ sharing disabled[0m
+[22m7394801 CAN device driver interface[0m
+[22m7395460 UDC core: g_ether: couldn't find an available UDC[0m
+[22m7396421 sun6i-rtc 7090000.rtc: registered as rtc0[0m
+[22m7397323 sun6i-rtc 7090000.rtc: setting system clock to 2026-10-17T15:40:01 UTC (1792251601)[0m
+[22m7398063 i2c_dev: i2c /dev entries driver[0m
+[22m7398938 sunxi-wdt 20500a0.watchdog: Watchdog enabled (timeout=16 sec, nowayout=0)[0m
+[22m7402357 sun8i-ce 3040000.crypto: Set mod clock to 300000000 (300 Mhz) from 400000000 (400 Mhz)[0m
+[33m7408760 sun8i-ce 3040000.crypto: Frequency for ram (468000000 hz) is higher than datasheet's recommendation (400000000 hz)[0m
+[22m7409723 sun8i-ce 3040000.crypto: will run requests pump with realtime priority[0m
+[22m7410515 sun8i-ce 3040000.crypto: will run requests pump with realtime priority[0m
+[22m7411569 sun8i-ce 3040000.crypto: will run requests pump with realtime priority[0m
+[22m7412555 sun8i-ce 3040000.crypto: will run requests pump with realtime priority[0m
+[22m7413367 sun8i-ce 3040000.crypto: Register cbc(aes)[0m
+[22m7414250 sun8i-ce 3040000.crypto: Register ecb(aes)[0m
+[22m7415129 sun8i-ce 3040000.crypto: Register cbc(des3_ede)[0m
+[22m7416054 sun8i-ce 3040000.crypto: Register ecb(des3_ede)[0m
+[22m7416927 sun8i-ce 3040000.crypto: CryptoEngine Die ID 0[0m
+[22m7417735 usbcore: registered new interface driver usbhid[0m
+[22m7418886 usbhid: USB HID core driver[0m
+[22m7419875 NET: Registered PF_INET6 protocol family[0m
+[22m7420644 Segment Routing with IPv6[0m
+[22m7421578 In-situ OAM (IOAM) with IPv6[0m
+[22m7422392 mip6: Mobile IPv6[0m
+[22m7423293 NET: Registered PF_PACKET protocol family[0m
+[22m7424146 can: controller area network core[0m
+[22m7425138 NET: Registered PF_CAN protocol family[0m
+[22m7425994 can: raw protocol[0m
+[22m7426878 can: broadcast manager protocol[0m
+[22m7427827 can: netlink gateway - max_hops=1[0m
+[22m7428837 can: SAE J1939[0m
+[22m7429707 can: isotp protocol (max_pdu_size 8300)[0m
+[22m7430553 Registering SWP/SWPB emulation handler[0m
+[22m7431501 Loading compiled-in X.509 certificates[0m
+[33m7432331 gpio gpiochip0: Static allocation of GPIO base is deprecated, use dynamic allocation.[0m
+[22m7433057 sun20i-d1-pinctrl 2000000.pinctrl: initialized sunXi PIO driver[0m
+[22m7433894 2500800.serial: ttyS2 at MMIO 0x2500800 (irq = 231, base_baud = 1500000) is a 16550A[0m
+[22m7434661 2501000.serial: ttyS4 at MMIO 0x2501000 (irq = 232, base_baud = 1500000) is a 16550A[0m
+[22m7435390 printk: legacy console [ttyS4] enabled[0m
+[22m7436110 ehci-platform 4200000.usb: EHCI Host Controller[0m
+[22m7437034 ehci-platform 4200000.usb: new USB bus registered, assigned bus number 1[0m
+[33m7437843 usb_phy_generic usb_phy_generic.1.auto: dummy supplies not allowed for exclusive requests (id=vbus)[0m
+[22m7438696 ehci-platform 4200000.usb: irq 234, io mem 0x04200000[0m
+[22m7439482 using host ethernet address: 02:54:52:4c:00:01[0m
+[22m7440338 using self ethernet address: 02:54:52:4c:00:02[0m
+[22m7441257 ohci-platform 4200400.usb: Generic Platform OHCI controller[0m
+[22m7442042 ohci-platform 4200400.usb: new USB bus registered, assigned bus number 2[0m
+[22m7442914 ohci-platform 4200400.usb: irq 236, io mem 0x04200400[0m
+[22m7443818 g_ether gadget.0: HOST MAC 02:54:52:4c:00:01[0m
+[22m7444612 g_ether gadget.0: MAC 02:54:52:4c:00:02[0m
+[22m7445544 g_ether gadget.0: Ethernet Gadget, version: Memorial Day 2008[0m
+[22m7447207 g_ether gadget.0: g_ether ready[0m
+[22m7449614 clk: Disabling unused clocks[0m
+[22m7450858 PM: genpd: Disabling unused power domains[0m
+[33m7454262 check access for rdinit=/init failed: -2, ignoring[0m
+[22m7457036 ehci-platform 4200000.usb: USB 2.0 started, EHCI 1.00[0m
+[36m7457249 [NervesTime] starting /usr/sbin/ntpd with: ["-n", "-S", "/srv/erlang/lib/nerves_time-0.4.13/priv/ntpd_script", "-p", "0.pool.ntp.org", "-p", "1.pool.ntp.org", "-p", "2.pool.ntp.org", "-p", "3.pool.ntp.org"][0m
+[22m7457724 hub 1-0:1.0: USB hub found[0m
+[22m7458518 hub 1-0:1.0: 1 port detected[0m
+[22m7461215 sunxi-mmc 4020000.mmc: initialized, max. request size: 2048 KB, uses new timings mode[0m
+[22m7463489 hub 2-0:1.0: USB hub found[0m
+[22m7464986 hub 2-0:1.0: 1 port detected[0m
+[22m7466371 Waiting for root device /dev/mmcblk0p2...[0m
+[22m7467665 mmc0: new high speed SD card at address 00d1[0m
+[22m7468739 mmcblk0: mmc0:00d1 MK 481 MiB[0m
+[22m7471600  mmcblk0: p2 p3 p4[0m
+[36m8399558 VintageNet(usb0): :configured -> internal configure (VintageNetDirect)[0m
+[36m8400608 VintageNet(wlan0): :configured -> internal configure (VintageNetWiFi)[0m
+[36m8400932 VintageNet(eth0): :configured -> internal configure (VintageNetEthernet)[0m
+[33m8404766 RouteManager: new set_connection_status eth0 -> :disconnected (Elixir.VintageNet.Interface.handle_event/4([file: ~c"lib/vintage_net/interface.ex", line: 357]))[0m
+[33m8406406 RouteManager: new set_connection_status usb0 -> :disconnected (Elixir.VintageNet.Interface.handle_event/4([file: ~c"lib/vintage_net/interface.ex", line: 357]))[0m
+[33m8409450 RouteManager: new set_connection_status wlan0 -> :disconnected (Elixir.VintageNet.Interface.handle_event/4([file: ~c"lib/vintage_net/interface.ex", line: 357]))[0m
+[22m8410903 RouteManager: clear_route usb0[0m
+[22m8413906 RouteManager: clear_route wlan0[0m
+[33m8416037 mmcblk0: p4 size 1048576 extends beyond EOD, truncated[0m
+[22m8417996 erofs (device mmcblk0p2): mounted with root inode @ nid 37.[0m
+[22m8419342 VFS: Mounted root (erofs filesystem) readonly on device 179:2.[0m
+[22m8421027 devtmpfs: mounted[0m
+[33m8431169 RouteManager: new set_connection_status usb0 -> :disconnected (Elixir.VintageNet.Interface.start_configuring/3([file: ~c"lib/vintage_net/interface.ex", line: 666]))[0m
+[22m8432938 Freeing unused kernel image (initmem) memory: 1024K[0m
+[22m8434105 Run /sbin/init as init process[0m
+[36m8435052   with arguments:[0m
+[36m8435712     /sbin/init[0m
+[36m8436352   with environment:[0m
+[36m8436943     HOME=/[0m
+[36m8437539     TERM=linux[0m
+[22m8438053 EXT4-fs (mmcblk0p4): mounted filesystem 3041e38d-615b-48d4-affb-a7787b5c4c39 r/w with ordered data mode. Quota mode: disabled.[0m
+[33m8438552 ext4 filesystem being mounted at /root supports timestamps until 2038-01-19 (0x7fffffff)[0m
+[22m8439028 random: crng init done[0m
+[22m8439509 usb 1-1: new high-speed USB device number 2 using ehci-platform[0m
+[22m8440028 nerves_heart: nerves_heart 2.5.0[0m
+[22m8440660 nerves_heart: kernel watchdog activated. WDT timeout 16s, WDT pet interval 8s, VM timeout 30s, initial grace period 0s[0m
+[22m8446850 nerves_heart: Received init handshake[0m
+[33m8455260 RouteManager: new set_connection_status wlan0 -> :disconnected (Elixir.VintageNet.Interface.start_configuring/3([file: ~c"lib/vintage_net/interface.ex", line: 666]))[0m
+[22m8458448 cfg80211: Loading compiled-in X.509 certificates for regulatory database[0m
+[22m8459702 Loaded X.509 cert 'sforshee: 00b28ddf47aef9cea7'[0m
+[22m8461722 Loaded X.509 cert 'wens: 61c038651aabdcf94bd0ac7ff06c7248db18c600'[0m
+[22m8463485 rtw88_8723du 1-1:1.2: Firmware version 48.0.0, H2C version 0[0m
+[22m8469720 usbcore: registered new interface driver rtw88_8723du[0m
+[22m8918992 mdns_lite usb0/{172, 31, 3, 157}[0m
+[22m8949349 RouteManager: clear_route usb0[0m
+[33m8965037 RouteManager: new set_connection_status usb0 -> :lan (ifup)[0m
+[36m9071937 wpa_supplicant: Successfully initialized wpa_supplicant[0m
+[36m9149327 wpa_supplicant: PKCS11 provider not present[0m
+[36m11123738 wpa_supplicant: wlan0: SME: Trying to authenticate with 78:45:58:cf:c6:c7 (SSID='kabellos' freq=2412 MHz)[0m
+[36m11126789 wpa_supplicant(wlan0): SME: Trying to authenticate with 78:45:58:cf:c6:c7 (SSID='kabellos' freq=2412 MHz)[0m
+[22m11481702 wlan0: authenticate with 78:45:58:cf:c6:c7 (local address=28:36:13:72:35:88)[0m
+[36m11779238 wpa_supplicant: wlan0: Trying to associate with 78:45:58:cf:c6:c7 (SSID='kabellos' freq=2412 MHz)[0m
+[36m11780339 wpa_supplicant(wlan0): Trying to associate with 78:45:58:cf:c6:c7 (SSID='kabellos' freq=2412 MHz)[0m
+[22m11786919 wlan0: send auth to 78:45:58:cf:c6:c7 (try 1/3)[0m
+[22m11787884 wlan0: authenticated[0m
+[22m11801917 wlan0: associate with 78:45:58:cf:c6:c7 (try 1/3)[0m
+[22m11835590 wlan0: RX AssocResp from 78:45:58:cf:c6:c7 (capab=0x1431 status=0 aid=6)[0m
+[22m11858416 RouteManager: set_connection_status wlan0 -> :lan (ifup)[0m
+[36m11861618 wpa_supplicant: wlan0: Associated with 78:45:58:cf:c6:c7[0m
+[22m11861928 wlan0: associated[0m
+[36m11864546 wpa_supplicant: wlan0: CTRL-EVENT-SUBNET-STATUS-UPDATE status=0[0m
+[36m11865810 wpa_supplicant(wlan0): Associated with 78:45:58:cf:c6:c7[0m
+[36m11868831 wpa_supplicant: wlan0: CTRL-EVENT-REGDOM-CHANGE init=COUNTRY_IE type=COUNTRY alpha2=US[0m
+[36m11873314 [vintage_net(wlan0)] starting udhcpc[0m
+[36m11908338 udhcpc(wlan0): udhcpc: started, v1.38.0[0m
+[36m11929593 WPASupplicant ignoring {:event, "CTRL-EVENT-SUBNET-STATUS-UPDATE", %{"status" => "0"}}[0m
+[36m11932916 WPASupplicant ignoring {:event, "CTRL-EVENT-REGDOM-CHANGE", %{"alpha2" => "US", "init" => "COUNTRY_IE", "type" => "COUNTRY"}}[0m
+[22m11952355 wlan0 dhcp deconfig: %{}[0m
+[22m11968875 RouteManager: clear_route wlan0[0m
+[36m11972117 udhcpc(wlan0): udhcpc: broadcasting discover[0m
+[36m11997618 wlan0: Limiting TX power to 30 (30 - 0) dBm as advertised by 78:45:58:cf:c6:c7[0m
+[36m12036145 wpa_supplicant(wlan0): WPA: Key negotiation completed with 78:45:58:cf:c6:c7 [PTK=CCMP GTK=CCMP][0m
+[36m12037651 Connected to AP: 78:45:58:cf:c6:c7[0m
+[36m12041911 wpa_supplicant: wlan0: WPA: Key negotiation completed with 78:45:58:cf:c6:c7 [PTK=CCMP GTK=CCMP][0m
+[36m12045910 wpa_supplicant: wlan0: CTRL-EVENT-CONNECTED - Connection to 78:45:58:cf:c6:c7 completed [id=0 id_str=][0m
+[36m12046558 wpa_supplicant(wlan0): RRM: Unexpected neighbor report[0m
+[36m12050288 wpa_supplicant: wlan0: RRM: Unexpected neighbor report[0m
+[36m14174586 udhcpc(wlan0): udhcpc: broadcasting discover[0m
+[36m14231958 udhcpc(wlan0): udhcpc: broadcasting select for 10.0.1.52, server 10.0.1.1[0m
+[36m14392001 udhcpc(wlan0): udhcpc: lease of 10.0.1.52 obtained from 10.0.1.1, lease time 86400[0m
+[36m14398367 udhcpc.renew(wlan0): %{broadcast: {10, 0, 1, 255}, domain: "localdomain", ip: {10, 0, 1, 52}, mask: 24, hostname: "nerves-0123b817bd12a177ee", dns: [{10, 0, 1, 1}], siaddr: {10, 0, 1, 1}, subnet: {255, 255, 255, 0}, router: [{10, 0, 1, 1}], serverid: {10, 0, 1, 1}, lease: 86400, renewal_time: 43200, rebind_time: 75600}[0m
+[22m14406894 mdns_lite wlan0/{10, 0, 1, 52}[0m
+[22m14411904 RouteManager: set_route wlan0: IP: [{{10, 0, 1, 52}, 24}], GW: {10, 0, 1, 1}[0m
+[22m14423578 mdns_lite wlan0/{10, 0, 1, 52}[0m
+[22m14427526 mdns_lite wlan0/{10, 0, 1, 52}[0m
+[22m17213721 Firmware valid and all applications started successfully[0m
+[22m18469106 RouteManager: set_connection_status wlan0 -> :internet (timeout)[0m
+[22m26938578 Services have been announced[0m
+[36m32175467 server will use strict KEX ordering[0m
+[22m32441614 Services have been announced[0m
+

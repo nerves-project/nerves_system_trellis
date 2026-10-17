@@ -1,0 +1,68 @@
+    0.000 
+    0.000 
+    0.000 U-Boot 2025.10 (Aug 23 2026 - 21:00:00 +0000) Allwinner Technology
+    0.026 
+    0.026 CPU:   Allwinner R528 (SUN8I)
+    0.026 Model: Trellis T113-S4
+    0.026 DRAM:  256 MiB
+    0.047 Core:  49 devices, 18 uclasses, devicetree: separate
+    0.047 WDT:   Not starting watchdog@20500a0
+    0.047 MMC:   mmc@4020000: 0
+    0.071 Loading Environment from MMC... Reading from MMC(0)... OK
+    0.116 In:    serial@2501000
+    0.116 Out:   serial@2501000
+    0.116 Err:   serial@2501000
+    0.116 Allwinner mUSB OTG (Peripheral)
+    0.136 Net:   using musb-hdrc, OUT ep1out IN ep1in STATUS ep2in
+    0.136 MAC de:ad:be:ef:00:01
+    0.136 HOST MAC de:ad:be:ef:00:00
+    0.136 RNDIS ready
+    0.136 eth0: usb_ether
+    0.136 Hit any key to stop autoboot:  0 
+    0.158 switch to partitions #0, OK
+    0.158 mmc0 is current device
+    0.178 MMC read: dev # 0, block # 10240, count 16384 ... 16384 blocks read: OK
+    0.566 ## Loading kernel (any) from FIT Image at 4a000000 ...
+    0.588    Using 'nerves-starter-kit' configuration
+    0.588    Trying 'kernel' kernel subimage
+    0.588    Verifying Hash Integrity ... sha256+ OK
+    0.794 ## Loading fdt (any) from FIT Image at 4a000000 ...
+    0.794    Using 'nerves-starter-kit' configuration
+    0.814    Trying 'fdt-nerves-starter-kit' fdt subimage
+    0.814    Verifying Hash Integrity ... sha256+ OK
+    0.814    Loading fdt from 0x4a4a8b94 to 0x41800000
+    0.814    Booting using the fdt blob at 0x41800000
+    0.814 Working FDT set to 41800000
+    0.814    Loading Kernel Image to 40040000
+    0.836    Loading Device Tree to 4af3e000, end 4af45a80 ... OK
+    0.836 Working FDT set to 4af3e000
+    0.857 
+    0.857 Starting kernel ...
+    0.857 
+    1.536 [    0.001186] /cpus/cpu@0 missing clock-frequency property
+    1.536 [    0.001222] /cpus/cpu@1 missing clock-frequency property
+    3.556 Erlang/OTP 29 [erts-17.1.1] [source] [32-bit] [smp:2:2] [ds:2:2:10] [async-threads:1]
+    3.556 
+    5.511 Interactive Elixir (1.20.4) - press Ctrl+C to exit (type h() ENTER for help)
+    5.950 [38;5;24m████▄▄    [38;5;74m▐███
+    5.970 [38;5;24m█▌  ▀▀██▄▄  [38;5;74m▐█
+    5.970 [38;5;24m█▌  [38;5;74m▄▄  [38;5;24m▀▀  [38;5;74m▐█   [39mN  E  R  V  E  S
+    5.970 [38;5;24m█▌  [38;5;74m▀▀██▄▄  ▐█
+    5.970 [38;5;24m███▌    [38;5;74m▀▀████[0m
+    5.991 [0mboot_bench 0.1.0 - network-armor (9a11af60-d91b-5f48-ae34-91fa965338e6)
+    5.991 
+    5.991   Serial       : 0123B817BD12A177EE
+    5.991 [0m  Uptime       : 3.559 seconds
+    5.991 [0m  Clock        : [33m2026-09-04 15:48:40 UTC (unsynchronized)[0m
+    6.011 [0m
+    6.011   Firmware     : [32mValid (A)               [0mApplications : [33m37 started (boot_bench not started)[0m
+    6.011   Memory usage : 44 MB (18%)             [0mPart usage   : 5 MB (3%)[0m
+    6.031   Load average : 0.00 0.00 0.00          [0mTemperature  : N/A[0m
+    6.031   Hostname     : nerves-0123b817bd12a177e[0mPlatform     : trellis arm[0m
+    6.031 
+    6.031   usb0         : 172.31.3.157/30
+    6.031 [0m
+    6.031 Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
+    6.054 [0m
+    6.054 [38;5;159mToolshed[0m imported.
+    6.054 iex(1)> 

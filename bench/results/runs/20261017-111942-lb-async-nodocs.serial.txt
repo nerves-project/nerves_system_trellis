@@ -1,0 +1,57 @@
+    0.000 
+    0.000 
+    0.000 U-Boot 2025.10 (Aug 23 2026 - 21:00:00 +0000) Allwinner Technology
+    0.000 
+    0.000 CPU:   Allwinner R528 (SUN8I)
+    0.000 Model: Trellis T113-S4
+    0.024 DRAM:  256 MiB
+    0.044 Core:  49 devices, 18 uclasses, devicetree: separate
+    0.044 WDT:   Not starting watchdog@20500a0
+    0.044 MMC:   mmc@4020000: 0
+    0.069 Loading Environment from MMC... Reading from MMC(0)... OK
+    0.097 In:    serial@2501000
+    0.118 Out:   serial@2501000
+    0.118 Err:   serial@2501000
+    0.118 Allwinner mUSB OTG (Peripheral)
+    0.118 Net:   using musb-hdrc, OUT ep1out IN ep1in STATUS ep2in
+    0.118 MAC de:ad:be:ef:00:01
+    0.143 HOST MAC de:ad:be:ef:00:00
+    0.143 RNDIS ready
+    0.143 eth0: usb_ether
+    0.143 Hit any key to stop autoboot:  0 
+    0.163 switch to partitions #0, OK
+    0.163 mmc0 is current device
+    0.163 MMC read: dev # 0, block # 26624, count 1 ... 1 blocks read: OK
+    0.163 Working FDT set to 4a000000
+    0.191 MMC read: dev # 0, block # 26624, count 11159 ... 11159 blocks read: OK
+    0.446 ## Loading kernel (any) from FIT Image at 4a000000 ...
+    0.467    Using 'nerves-starter-kit' configuration
+    0.467    Trying 'kernel' kernel subimage
+    0.467    Verifying Hash Integrity ... crc32+ OK
+    0.512 ## Loading fdt (any) from FIT Image at 4a000000 ...
+    0.512    Using 'nerves-starter-kit' configuration
+    0.533    Trying 'fdt-nerves-starter-kit' fdt subimage
+    0.533    Verifying Hash Integrity ... crc32+ OK
+    0.533    Loading fdt from 0x4a5644e0 to 0x41800000
+    0.533    Booting using the fdt blob at 0x41800000
+    0.533 Working FDT set to 41800000
+    0.533    Loading Kernel Image to 40040000
+    0.554    Loading Device Tree to 4af3e000, end 4af45a80 ... OK
+    0.554 Working FDT set to 4af3e000
+    0.582 
+    0.582 Starting kernel ...
+    0.582 
+    0.852 [    0.001199] /cpus/cpu@0 missing clock-frequency property
+    0.875 [    0.001234] /cpus/cpu@1 missing clock-frequency property
+    3.388 Erlang/OTP 29 [erts-17.1.1] [source] [32-bit] [smp:2:2] [ds:2:2:10] [async-threads:1]
+    3.388 
+    7.862 [Livebook] Application running at http://nerves-0123b817bd12a177ee.local/
+    8.037 Interactive Elixir (1.20.4) - press Ctrl+C to exit (type h() ENTER for help)
+    8.114 [33mError while evaluating: /etc/iex.exs[0m
+    8.134 [31m** (CaseClauseError) no case clause matching:
+    8.134 
+    8.134     :"async BOOT_STRIP_DOCS=1"
+    8.134 [0m
+    8.134 [31m    (stdlib 8.1.1) erl_eval.erl:1744: :erl_eval.case_clauses/8
+    8.134     /etc/iex.exs:4: (file)
+    8.134 [0miex(livebook@nerves-0123b817bd12a177ee.local)1> 

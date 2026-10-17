@@ -1,0 +1,106 @@
+    0.000 
+    0.000 
+    0.000 U-Boot 2025.10 (Sep 04 2026 - 15:16:40 +0000) Allwinner Technology
+    0.024 
+    0.024 CPU:   Allwinner R528 (SUN8I)
+    0.024 Model: Trellis T113-S4
+    0.024 DRAM:  256 MiB
+    0.044 Core:  49 devices, 18 uclasses, devicetree: separate
+    0.068 WDT:   Not starting watchdog@20500a0
+    0.068 MMC:   mmc@4020000: 0
+    0.068 Loading Environment from MMC... Reading from MMC(0)... OK
+    0.114 In:    serial@2501000
+    0.114 Out:   serial@2501000
+    0.114 Err:   serial@2501000
+    0.135 Allwinner mUSB OTG (Peripheral)
+    0.135 Net:   using musb-hdrc, OUT ep1out IN ep1in STATUS ep2in
+    0.135 MAC de:ad:be:ef:00:01
+    0.135 HOST MAC de:ad:be:ef:00:00
+    0.135 RNDIS ready
+    0.135 eth0: usb_ether
+    0.156 Hit any key to stop autoboot:  0 
+    0.176 switch to partitions #0, OK
+    0.176 mmc0 is current device
+    0.176 MMC read: dev # 0, block # 26624, count 1 ... 1 blocks read: OK
+    0.176 Working FDT set to 4a000000
+    0.176 MMC read: dev # 0, block # 26624, count 11159 ... 11159 blocks read: OK
+    0.459 ## Loading kernel (any) from FIT Image at 4a000000 ...
+    0.459    Using 'nerves-starter-kit' configuration
+    0.483    Trying 'kernel' kernel subimage
+    0.483    Verifying Hash Integrity ... crc32+ OK
+    0.531 ## Loading fdt (any) from FIT Image at 4a000000 ...
+    0.531    Using 'nerves-starter-kit' configuration
+    0.531    Trying 'fdt-nerves-starter-kit' fdt subimage
+    0.531    Verifying Hash Integrity ... crc32+ OK
+    0.531    Loading fdt from 0x4a5644e0 to 0x41800000
+    0.552    Booting using the fdt blob at 0x41800000
+    0.552 Working FDT set to 41800000
+    0.552    Loading Kernel Image to 40040000
+    0.552    Loading Device Tree to 4af3e000, end 4af45a80 ... OK
+    0.572 Working FDT set to 4af3e000
+    0.572 Timer summary in microseconds (32 records):
+    0.572        Mark    Elapsed  Stage
+    0.572           0          0  reset
+    0.592      23,643     23,643  SPL
+    0.592      79,548     55,905  end phase
+    0.592      80,221        673  board_init_f
+    0.592     209,738    129,517  board_init_r
+    0.592     307,101     97,363  eth_common_init
+    0.592     317,074      9,973  eth_initialize
+    0.592     318,582      1,508  main_loop
+    0.612     639,867    321,285  bootm_start
+    0.612     639,870          3  boot_get_kernel
+    0.612     644,684      4,814  fit_image_load
+    0.612     644,731         47  fit_image_load
+    0.612     644,731          0  fit_image_load
+    0.612     648,584      3,853  fit_image_load
+    0.633     698,582     49,998  fit_image_load
+    0.633     698,588          6  fit_image_load
+    0.633     698,599         11  fit_image_load
+    0.633     698,615         16  fit_image_load
+    0.633     698,621          6  fit_image_load
+    0.633     703,202      4,581  fit_image_load
+    0.654     703,244         42  fit_image_load
+    0.654     703,244          0  fit_image_load
+    0.654     715,075     11,831  fit_image_load
+    0.654     715,079          4  fit_image_load
+    0.654     715,084          5  fit_image_load
+    0.654     715,098         14  fit_image_load
+    0.674     719,076      3,978  fit_image_load
+    0.674     734,662     15,586  bootm_load_os
+    0.674     749,011     14,349  boot_jump_linux
+    0.674     749,012          1  start_kernel
+    0.674 
+    0.674 Accumulated time:
+    0.674                 72,089  dm_f
+    0.700                 10,118  dm_r
+    0.700 
+    0.700 Starting kernel ...
+    0.700 
+    0.973 [    0.001195] /cpus/cpu@0 missing clock-frequency property
+    0.999 [    0.001232] /cpus/cpu@1 missing clock-frequency property
+    3.394 Erlang/OTP 29 [erts-17.1.1] [source] [32-bit] [smp:2:2] [ds:2:2:10] [async-threads:1]
+    3.418 
+    4.797 Interactive Elixir (1.20.4) - press Ctrl+C to exit (type h() ENTER for help)
+    4.993 [38;5;161mToolshed[0m imported.
+    5.045 iex(1)> [J[38;5;24m████▄▄    [38;5;74m▐███
+    5.307 [38;5;24m█▌  ▀▀██▄▄  [38;5;74m▐█
+    5.307 [38;5;24m█▌  [38;5;74m▄▄  [38;5;24m▀▀  [38;5;74m▐█   [39mN  E  R  V  E  S
+    5.307 [38;5;24m█▌  [38;5;74m▀▀██▄▄  ▐█
+    5.307 [38;5;24m███▌    [38;5;74m▀▀████[0m
+    5.328 [0mboot_bench 0.1.0 - bitter-scrap (1cb6859b-c686-50a5-dcfa-0f31624047af)
+    5.328 
+    5.328   Serial       : 0123B817BD12A177EE
+    5.328 [0m  Uptime       : 3.539 seconds
+    5.328 [0m  Clock        : [33m2026-10-17 19:07:17 UTC (unsynchronized)[0m
+    5.348 [0m
+    5.348   Firmware     : [32mValid (B)               [0mApplications : 39 started[0m
+    5.348   Memory usage : 50 MB (20%)             [0mPart usage   : 5 MB (3%)[0m
+    5.348   Load average : 0.00 0.00 0.00          [0mTemperature  : N/A[0m
+    5.369   Hostname     : nerves-0123b817bd12a177e[0mPlatform     : trellis arm[0m
+    5.369 
+    5.369   usb0         : 172.31.3.157/30, fe80::54:52ff:fe4c:2/64
+    5.369 [0m
+    5.369 Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
+    5.369 [0m
+    5.369 iex(1)> 

@@ -1,0 +1,260 @@
+<title>NSK Boot-Time Research</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a single readable column (an engineering notebook), with full-width
+   chart bands; boot phases drawn to one time scale per chart. */
+:root {
+  --bg: #f4f6f3;          /* faint solder-mask green tint */
+  --surface: #ffffff;
+  --ink: #17221d;
+  --muted: #56645d;
+  --rule: #d6ddd8;
+  --accent: #0b6e4f;      /* PCB green */
+  --after: #b46a1f;       /* copper: the "after" state */
+  --before: #8c9a93;
+  --boot: #9aa7c2;        /* bootloader */
+  --kernel: #6f8fd0;
+  --beam: #c9a45c;
+  --apps: #0b6e4f;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1613; --surface: #16201b; --ink: #e3ebe6; --muted: #9fb0a7; --rule: #2a3832;
+    --accent: #3fbf8f; --after: #e2994f; --before: #6c7b74;
+    --boot: #7f8fb3; --kernel: #6f8fd0; --beam: #c9a45c; --apps: #3fbf8f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1613; --surface: #16201b; --ink: #e3ebe6; --muted: #9fb0a7; --rule: #2a3832;
+  --accent: #3fbf8f; --after: #e2994f; --before: #6c7b74;
+  --boot: #7f8fb3; --kernel: #6f8fd0; --beam: #c9a45c; --apps: #3fbf8f;
+  color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+}
+.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 44px; }
+.prose { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 24px; font-weight: 700; }
+h3 { font-size: 16px; font-weight: 700; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, .mono { font-family: var(--mono); font-size: 0.88em; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+section { display: grid; gap: 16px; }
+header { display: grid; gap: 14px; }
+.lede { font-size: 18px; color: var(--ink); max-width: 66ch; }
+.meta { color: var(--muted); font-size: 14px; }
+
+/* Headline bars */
+.bars { display: grid; gap: 22px; }
+.bar-row { display: grid; gap: 6px; }
+.bar-label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; font-size: 15px; }
+.bar-label b { font-family: var(--display); font-weight: 700; }
+.bar-label .delta { font-family: var(--mono); color: var(--after); font-weight: 600; }
+.track { position: relative; height: 22px; }
+.bar { position: absolute; left: 0; height: 10px; border-radius: 2px; }
+.bar.before { top: 0; background: var(--before); }
+.bar.after { top: 12px; background: var(--after); }
+.bar-vals { display: flex; gap: 18px; font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.key { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* Timelines */
+.timeline { display: grid; gap: 10px; }
+.tl-row { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: center; }
+.tl-name { font-size: 14px; color: var(--muted); }
+.tl-name b { color: var(--ink); font-weight: 600; display: block; }
+.tl-bar { display: flex; height: 26px; border-radius: 3px; overflow: hidden; background: var(--rule); }
+.tl-bar span { display: block; height: 100%; min-width: 0; border-right: 1px solid var(--bg); }
+.axis { display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
+.axis-scale { position: relative; height: 18px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.axis-scale i { position: absolute; top: 0; transform: translateX(-50%); font-style: normal; }
+.axis-scale i:first-child { transform: none; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--muted); }
+@media (max-width: 560px) {
+  .tl-row, .axis { grid-template-columns: 1fr; gap: 4px; }
+  .axis > div:first-child { display: none; }
+}
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 640px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+tr:last-child td { border-bottom: none; }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--after); font-weight: 600; }
+td.num.neutral { color: var(--muted); font-weight: 400; }
+.pill { display: inline-block; font-family: var(--mono); font-size: 11px; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); white-space: nowrap; }
+.pill.adopt { border-color: var(--accent); color: var(--accent); }
+.pill.signoff { border-color: var(--after); color: var(--after); }
+
+ol.steps, ul.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; max-width: 70ch; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; }
+.two > div { min-width: 0; display: grid; gap: 12px; align-content: start; }
+pre { margin: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.6; }
+.note { border-left: 3px solid var(--after); padding: 4px 0 4px 14px; color: var(--ink); max-width: 70ch; }
+hr { border: none; border-top: 1px solid var(--rule); margin: 0; }
+footer { color: var(--muted); font-size: 13px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Trellis T113-S4 · Nerves Starter Kit · October 2026</span>
+    <h1>NSK boot-time research</h1>
+    <p class="lede">Can Claude close the loop on Nerves boot time? On a Nerves Starter Kit it rebooted, measured and changed the boot about 150 times in a day. Livebook now reaches the IEx prompt in <b>6.8 s instead of 18.2 s</b>, the <code>mix nerves.new</code> app in <b>3.9 s instead of 5.9 s</b>, and WiFi gets an address <b>4 s sooner</b>.</p>
+    <p class="meta">Everything is on one branch: <a href="https://github.com/nerves-project/nerves_system_trellis/tree/boot-time-research">nerves_system_trellis/boot-time-research</a> (<a href="https://github.com/nerves-project/nerves_system_trellis/compare/main...boot-time-research">compare with main</a>). Start with <code>bench/FINDINGS.md</code>.</p>
+  </header>
+
+  <section aria-labelledby="h-headline">
+    <h2 id="h-headline">Time to IEx prompt</h2>
+    <div class="legend"><span class="key"><span class="sw" style="background:var(--before)"></span>before</span><span class="key"><span class="sw" style="background:var(--after)"></span>after</span><span>kernel uptime, median of 5 soft reboots</span></div>
+    <div class="bars" id="bars"></div>
+  </section>
+
+  <section aria-labelledby="h-timeline">
+    <h2 id="h-timeline">Where the time goes</h2>
+    <p class="prose">Each row is one boot from the U-Boot banner to the IEx prompt, drawn to the same scale. The boot-script phase is mostly CPU-bound module loading, so loading less code, and loading it on both cores, is where the seconds came from.</p>
+    <div class="legend">
+      <span class="key"><span class="sw" style="background:var(--boot)"></span>U-Boot</span>
+      <span class="key"><span class="sw" style="background:var(--kernel)"></span>kernel decompress + init</span>
+      <span class="key"><span class="sw" style="background:var(--muted)"></span>erlinit</span>
+      <span class="key"><span class="sw" style="background:var(--beam)"></span>BEAM start → boot script</span>
+      <span class="key"><span class="sw" style="background:var(--apps)"></span>boot script (app starts) → IEx</span>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <section aria-labelledby="h-changes">
+    <h2 id="h-changes">What changed, ranked by impact</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Change</th><th>Gain</th><th>Scope</th><th>Where on the branch</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><b>Interactive instead of <code>-mode embedded</code></b><br>Livebook preloads 3,132 modules but ~700 are used by IEx time. Trade-off: missing modules show up at first call, not at boot.</td><td class="num">−5.4 s</td><td>Livebook, any big app</td><td><code>bench/livebook/</code></td><td><span class="pill adopt">adopt</span></td></tr>
+          <tr><td><b>Profile-guided background preload</b><br>Record the modules loaded by <code>iex.exs</code> time; at boot, load them with <code>code:ensure_modules_loaded/1</code> in chunks of 256 on the idle second core.</td><td class="num">−4.0 s<br><span style="color:var(--muted);font-weight:400">−0.8 s small app</span></td><td>Nerves 2 build action</td><td><code>bench/boot_tools/</code></td><td><span class="pill adopt">adopt</span></td></tr>
+          <tr><td><b>WiFi: retry the lost first DHCP DISCOVER sooner</b><br>udhcpc starts on association; its first DISCOVER goes out before the WPA handshake completes and is lost; busybox retries 3 s later.</td><td class="num">−2.1 s</td><td>VintageNet</td><td><code>bench/patches/vintage_net-*</code></td><td><span class="pill">question</span></td></tr>
+          <tr><td><b>WiFi: scan the known channel first</b><br>A full scan takes ~2 s before the first auth attempt. A fixed <code>scan_freq</code> is fragile; last-known channel first, then a full scan, is the real fix.</td><td class="num">−2.0 s</td><td>VintageNetWiFi</td><td><code>bench/patches/vintage_net_wifi-*</code></td><td><span class="pill">question</span></td></tr>
+          <tr><td><b>Print the MOTD asynchronously</b> in <code>iex.exs</code></td><td class="num">−0.4 s</td><td>template, nerves_motd</td><td><code>bench/boot_bench/rootfs_overlay/etc/iex.exs</code></td><td><span class="pill adopt">adopt</span></td></tr>
+          <tr><td><b>Keep <code>runtime.exs</code> trivial</b> (evaluating it loads Elixir's evaluator and compiler)</td><td class="num">−0.16 s<br><span style="color:var(--muted);font-weight:400">1.4 s step on Livebook</span></td><td>any app</td><td><code>bench/boot_bench</code> (<code>BOOT_NO_RUNTIME_CONFIG</code>)</td><td><span class="pill adopt">adopt</span></td></tr>
+          <tr><td><b>Kernel: drop built-in <code>CRYPTO_ECDH</code></b>, which pulled in a 230 ms jitterentropy self-test</td><td class="num">−0.2 s</td><td>Trellis (check others with <code>initcall_debug</code>)</td><td><code>linux/linux_defconfig</code></td><td><span class="pill adopt">adopt</span></td></tr>
+          <tr><td><b>crc32 FIT hashes</b> instead of sha256</td><td class="num">−0.22 s</td><td>Trellis</td><td><code>trellis.its</code></td><td><span class="pill signoff">needs sign-off</span></td></tr>
+          <tr><td><b>LZ4 kernel</b> (<code>BR2_LINUX_KERNEL_LZ4</code>; Buildroot overrides <code>CONFIG_KERNEL_*</code>)</td><td class="num">−0.16 s</td><td>Trellis</td><td><code>nerves_defconfig</code></td><td><span class="pill adopt">adopt</span></td></tr>
+          <tr><td><b>erlinit: write the next boot's RNG seed while Erlang starts</b></td><td class="num">−0.11 s</td><td>erlinit</td><td><code>patches/erlinit/</code></td><td><span class="pill signoff">needs review</span></td></tr>
+          <tr><td><b>U-Boot reads only the FIT's size</b> (<code>fdt header get … totalsize</code>) instead of a fixed 8 MB</td><td class="num">−0.11 s</td><td>FIT-based systems</td><td><code>uboot/uboot.env</code></td><td><span class="pill adopt">adopt</span></td></tr>
+          <tr><td><b>Optional: slim the always-loaded first module group</b> (<code>erl_parse</code>, <code>erl_lint</code>, <code>erl_eval</code>)</td><td class="num">−0.07 s</td><td>Nerves 2 build action</td><td><code>bench/boot_tools/</code> (<code>BOOT_FIRST_DROP</code>)</td><td><span class="pill">option</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="meta">Gains are for the change alone, measured against the previous best on the same firmware. Livebook varies ±0.3 s run to run; the small app ±0.05 s.</p>
+  </section>
+
+  <section aria-labelledby="h-nohelp" class="two">
+    <div>
+      <h2 id="h-nohelp">Tried, didn't help</h2>
+      <ul class="plain">
+        <li><b>Loading drivers before the BEAM</b> (the nerves_uevent idea): drivers load 1.3 s earlier, IEx and WiFi only ~0.1 s. VintageNet starts configuring wlan0 at ~4.3 s, then scan and DHCP dominate.</li>
+        <li><b>Exact boot paths</b> (no failed lookups) and a <b>single-file module bundle</b>: interactive mode with OTP's boot path cache beats both; in embedded mode the cost is preparing code, not finding it.</li>
+        <li><b>Hardening off</b> (PIE, SSP, RELRO): ≤0.15 s; not worth it.</li>
+        <li><b>Uncompressed EROFS</b>: +0.2 s. <b>Kernel trim</b>: −16 ms. <b>U-Boot without networking</b>: −28 ms.</li>
+        <li><b>JIT</b>: not pursued; boot is dominated by code loading.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>How the loop works</h2>
+      <ol class="steps">
+        <li>Build a variant with build-time switches (<code>variant.sh</code>), flash it over ssh, confirm the running firmware UUID.</li>
+        <li>Reboot over the serial console; timestamp U-Boot, kernel and IEx on the host.</li>
+        <li>Pull a report from the board: boot-script marks, CPU accounting, dmesg, network events, the module set at IEx.</li>
+        <li>Five boots, medians, a bootchart; log it in <code>EXPERIMENTS.md</code>; keep only clear wins.</li>
+      </ol>
+      <p class="meta">A functional check (all apps started, RingLogger alive) runs every boot, after a crashing app start once looked like a speedup.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-questions">
+    <h2 id="h-questions">Questions for Frank</h2>
+    <ul class="plain">
+      <li>Should Nerves 2 offer the boot tracer and profile-guided preload as build actions?</li>
+      <li>Should the <code>mix nerves.new</code> template use interactive mode and an async MOTD?</li>
+      <li>Is crc32 for FIT hashes acceptable for Trellis, and does the erlinit seed change fit seedrng's intent? (If power is lost before the new seed is written, the next boot has no creditable seed.)</li>
+      <li>How would you want the DHCP and scan fixes done in VintageNet?</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="h-get">
+    <h2 id="h-get">Try it locally</h2>
+    <p class="prose">One branch: <code>main</code> plus your <code>erofs</code> commit (Nerves 2 + EROFS) plus this work. <code>git log --reverse origin/main..</code> reads as the story: tooling, then one commit per system change with its numbers, then the app-level patches, then the raw data and notes. Nothing outside this repo needs a branch: erlinit is a Buildroot patch here, and the Livebook and VintageNet changes are patch files with scripts that apply them.</p>
+<pre>git fetch origin boot-time-research
+git switch boot-time-research
+less bench/FINDINGS.md        # results, and where each change lives
+less bench/README.md          # commands to reproduce every number</pre>
+    <p class="note">The ~65 firmware images built during the measurements (about 1.8 GB) and other build outputs are too large to commit. Jon has them and can share them if needed.</p>
+  </section>
+
+  <hr>
+  <footer>One board, soft reboots (a cold boot adds ~0.18 s of BootROM and SPL before U-Boot instead of the 0.5 s watchdog delay), 5 boots per variant. The full lab notebook, including corrected mistakes, is <code>bench/EXPERIMENTS.md</code>.</footer>
+</div>
+
+<script>
+(function () {
+  // Headline bars: seconds, kernel uptime to IEx prompt (medians)
+  var rows = [
+    { label: "nerves_livebook (124 apps)", before: 18.16, after: 6.82, note: "original firmware → final" },
+    { label: "mix nerves.new app (39 apps)", before: 5.90, after: 3.89, note: "Nerves 2 template → final" },
+    { label: "WiFi IPv4 address (template app)", before: 10.41, after: 6.37, note: "stock VintageNet → with the two WiFi fixes" }
+  ];
+  var max = 20;
+  var bars = document.getElementById("bars");
+  rows.forEach(function (r) {
+    var el = document.createElement("div");
+    el.className = "bar-row";
+    el.innerHTML =
+      '<div class="bar-label"><b>' + r.label + '</b><span class="delta">−' + (r.before - r.after).toFixed(1) + ' s</span></div>' +
+      '<div class="track"><div class="bar before" style="width:' + (r.before / max * 100) + '%"></div>' +
+      '<div class="bar after" style="width:' + (r.after / max * 100) + '%"></div></div>' +
+      '<div class="bar-vals"><span>' + r.before.toFixed(2) + ' s</span><span style="color:var(--after)">' + r.after.toFixed(2) + ' s</span><span>' + r.note + '</span></div>';
+    bars.appendChild(el);
+  });
+
+  // Timelines: seconds from the U-Boot banner (serial + kernel clock)
+  // phases: [uboot, kernel (decompress + init to /sbin/init), erlinit, beam→script, script→IEx]
+  var tl = [
+    { name: "Template app", sub: "before (Nerves 2 template)", p: [0.847, 0.686 + 0.548, 0.202, 0.663, 4.487] },
+    { name: "Template app", sub: "after", p: [0.572, 0.287 + 0.318, 0.142, 0.579, 2.846] },
+    { name: "Livebook", sub: "before (Nerves 2, embedded mode)", p: [0.565, 0.287 + 0.338, 0.212, 0.689, 16.044] },
+    { name: "Livebook", sub: "after", p: [0.562, 0.289 + 0.327, 0.133, 0.736, 5.627] }
+  ];
+  var colors = ["var(--boot)", "var(--kernel)", "var(--muted)", "var(--beam)", "var(--apps)"];
+  var names = ["U-Boot", "kernel", "erlinit", "BEAM start", "boot script → IEx"];
+  var span = 20;
+  var host = document.getElementById("timeline");
+  var axis = document.createElement("div");
+  axis.className = "axis";
+  var ticks = "";
+  for (var s = 0; s <= span; s += 5) ticks += '<i style="left:' + (s / span * 100) + '%">' + s + ' s</i>';
+  axis.innerHTML = '<div></div><div class="axis-scale">' + ticks + '</div>';
+  host.appendChild(axis);
+  tl.forEach(function (r) {
+    var total = r.p.reduce(function (a, b) { return a + b; }, 0);
+    var segs = r.p.map(function (v, i) {
+      return '<span title="' + names[i] + ': ' + v.toFixed(2) + ' s" style="width:' + (v / span * 100) + '%;background:' + colors[i] + '"></span>';
+    }).join("");
+    var row = document.createElement("div");
+    row.className = "tl-row";
+    row.innerHTML = '<div class="tl-name"><b>' + r.name + ' · ' + total.toFixed(1) + ' s</b>' + r.sub + '</div><div class="tl-bar" style="background:transparent">' + segs + '</div>';
+    host.appendChild(row);
+  });
+})();
+</script>

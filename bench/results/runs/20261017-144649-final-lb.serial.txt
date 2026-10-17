@@ -1,0 +1,76 @@
+    0.000 
+    0.000 
+    0.000 U-Boot 2025.10 (Aug 23 2026 - 21:00:00 +0000) Allwinner Technology
+    0.000 
+    0.000 CPU:   Allwinner R528 (SUN8I)
+    0.028 Model: Trellis T113-S4
+    0.028 DRAM:  256 MiB
+    0.048 Core:  49 devices, 18 uclasses, devicetree: separate
+    0.048 WDT:   Not starting watchdog@20500a0
+    0.048 MMC:   mmc@4020000: 0
+    0.048 Loading Environment from MMC... Reading from MMC(0)... OK
+    0.115 In:    serial@2501000
+    0.115 Out:   serial@2501000
+    0.115 Err:   serial@2501000
+    0.115 Allwinner mUSB OTG (Peripheral)
+    0.138 Net:   using musb-hdrc, OUT ep1out IN ep1in STATUS ep2in
+    0.138 MAC de:ad:be:ef:00:01
+    0.138 HOST MAC de:ad:be:ef:00:00
+    0.138 RNDIS ready
+    0.138 eth0: usb_ether
+    0.138 Hit any key to stop autoboot:  0 
+    0.158 switch to partitions #0, OK
+    0.158 mmc0 is current device
+    0.158 MMC read: dev # 0, block # 10240, count 1 ... 1 blocks read: OK
+    0.180 Working FDT set to 4a000000
+    0.180 MMC read: dev # 0, block # 10240, count 11159 ... 11159 blocks read: OK
+    0.451 ## Loading kernel (any) from FIT Image at 4a000000 ...
+    0.474    Using 'nerves-starter-kit' configuration
+    0.474    Trying 'kernel' kernel subimage
+    0.474    Verifying Hash Integrity ... crc32+ OK
+    0.518 ## Loading fdt (any) from FIT Image at 4a000000 ...
+    0.518    Using 'nerves-starter-kit' configuration
+    0.518    Trying 'fdt-nerves-starter-kit' fdt subimage
+    0.518    Verifying Hash Integrity ... crc32+ OK
+    0.538    Loading fdt from 0x4a5644e0 to 0x41800000
+    0.538    Booting using the fdt blob at 0x41800000
+    0.538 Working FDT set to 41800000
+    0.538    Loading Kernel Image to 40040000
+    0.558    Loading Device Tree to 4af3e000, end 4af45a80 ... OK
+    0.558 Working FDT set to 4af3e000
+    0.558 
+    0.558 Starting kernel ...
+    0.558 
+    0.852 [    0.001197] /cpus/cpu@0 missing clock-frequency property
+    0.877 [    0.001235] /cpus/cpu@1 missing clock-frequency property
+    4.269 Erlang/OTP 29 [erts-17.1.1] [source] [32-bit] [smp:2:2] [ds:2:2:10] [async-threads:1]
+    4.269 
+    7.327 [Livebook] Application running at http://nerves-0123b817bd12a177ee.local/
+    7.532 Interactive Elixir (1.20.4) - press Ctrl+C to exit (type h() ENTER for help)
+    7.632 [38;5;172mToolshed[0m imported. Run h(Toolshed) for more info.
+    7.653 iex(livebook@nerves-0123b817bd12a177ee.local)1> [J[?25l[0m [38;2;0;0;0m    [0m [38;2;86;58;70m▃[0m [38;2;21;25;30m            [0m
+    7.857  [38;2;0;0;0m    [7m[38;2;124;77;94m▘[38;2;128;79;96m▝[0m[38;2;120;75;91;48;2;83;56;68m▇[0m[38;2;118;74;89m▃[38;2;116;73;88m▁          [0m
+    7.877  [38;2;0;0;0m  [0m  [38;2;204;194;194;48;2;145;105;118m▃[38;2;183;160;168;48;2;109;72;85m▗[38;2;191;168;176;48;2;94;64;75m▆[38;2;181;159;167;48;2;81;51;62m▇[0m[7m[38;2;160;134;143m▃[0m[38;2;144;113;124m▘     [0m [38;2;48;37;45m   [0m
+    7.898  [38;2;0;0;0m  [7m[38;2;191;63;97m▍[0m[38;2;187;63;96m▇[38;2;191;76;106;48;2;207;203;200m▆[38;2;192;74;104;48;2;204;193;193m▄[38;2;192;72;102;48;2;199;177;183m▂[0m[38;2;192;158;167m▎[0m [38;2;21;25;30m [38;2;139;80;98m▁[38;2;236;125;155m▂[38;2;231;123;152m▄[38;2;249;132;163m▅[38;2;244;129;160m▇[38;2;252;133;164m▋   [0m
+    7.918  [38;2;37;45;49m▗[38;2;45;54;58m▄[38;2;31;38;42;48;2;87;48;61m▏[38;2;41;40;43;48;2;184;62;94m▃[38;2;119;52;70;48;2;189;63;96m▁[48;2;193;64;98m  [38;2;193;64;98;48;2;192;64;98m╴[0m[38;2;189;64;97m▇[38;2;244;128;159m▇[38;2;254;134;166;48;2;253;133;165m╴[48;2;254;134;166m    [0m[38;2;254;134;166m▋   [0m
+    7.959   [38;2;47;57;61;48;2;46;56;60m┊[38;2;44;54;58;48;2;31;40;41m▌[48;2;30;39;40m [38;2;32;39;40;48;2;80;46;57m▇[38;2;54;42;48;48;2;184;62;94m▖[48;2;193;64;98m   [38;2;243;123;154;48;2;254;134;166m▏     [0m[38;2;254;134;166m▋   [0m
+    7.980  [7m[38;2;40;49;53m▉[0m[38;2;21;25;30;48;2;47;57;61m [38;2;45;54;58;48;2;30;39;40m▌  [38;2;40;40;43;48;2;161;58;85m▋[38;2;173;60;90;48;2;191;63;97m▏[48;2;193;64;98m  [38;2;244;124;155;48;2;254;134;166m▏     [0m[38;2;254;134;166m▋   [0m
+    8.000   [7m[38;2;45;54;58m▖[0m[38;2;30;39;40;48;2;45;54;58m▝[38;2;37;46;48;48;2;30;39;40m▁[38;2;100;48;63;48;2;35;39;41m▁[38;2;52;41;47;48;2;153;57;82m▘[38;2;159;58;84;48;2;190;63;97m▎[48;2;193;64;98m  [38;2;244;124;155;48;2;254;134;166m▏    [38;2;254;134;166;48;2;248;131;162m╴[0m[38;2;218;117;145m▋   [0m
+    8.020  [38;2;0;0;0m  [7m[38;2;38;46;50m▇[38;2;44;52;56m▇[38;2;121;49;69m▆[38;2;157;57;83m▅[38;2;179;60;92m▃[38;2;190;63;97m▂[0m[38;2;141;51;77;48;2;193;64;98m▁[38;2;193;105;130;48;2;253;132;164m▁[0m[7m[38;2;251;132;164m▂[38;2;238;126;156m▃[38;2;245;129;160m▅[38;2;203;110;136m▆[0m [38;2;21;25;30m    [0m
+    8.061  [38;2;0;0;0m        [0m  [38;2;21;25;30m         [0m
+    8.061 [?25h[0mnerves_livebook 0.19.6 - all-kiwi (0f6f3902-5c3b-5e2c-6ffb-8c98231ddf4b)
+    8.061 
+    8.061   Serial       : 0123B817BD12A177EE
+    8.082 [0m  Uptime       : 6.256 seconds
+    8.082 [0m  Clock        : [33m2026-10-17 20:46:19 UTC (unsynchronized)[0m
+    8.082 [0m
+    8.082   Firmware     : [32mValid (A)               [0mApplications : 124 started[0m
+    8.082   Memory usage : 65 MB (26%)             [0mPart usage   : 5 MB (3%)[0m
+    8.103   Load average : 0.08 0.02 0.01          [0mTemperature  : N/A[0m
+    8.103   Hostname     : nerves-0123b817bd12a177e[0mPlatform     : trellis arm[0m
+    8.103 
+    8.103   usb0         : 172.31.3.157/30, fe80::54:52ff:fe4c:2/64
+    8.127 [0m
+    8.127 Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
+    8.127 [0m
+    8.127 iex(livebook@nerves-0123b817bd12a177ee.local)1> 

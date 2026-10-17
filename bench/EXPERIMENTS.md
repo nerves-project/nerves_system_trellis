@@ -1,0 +1,360 @@
+# Experiment log
+
+Protocol: one change at a time, ≥5 reboots per variant, compare medians of
+`iex_k` (and `iex_total`, `net_*_k`). Keep a change only if the median
+improves by more than the run-to-run spread.
+
+## Baselines
+
+### B0: nerves_livebook 0.19.6 (Nerves 1, shoehorn, squashfs, OTP 29.0) — 2026-10-17
+
+5 soft reboots, medians: U-Boot→kernel 0.84 s, kernel clock zero 1.52 s after
+the U-Boot banner, `/sbin/init` 0.56 s, `beam.smp` 0.84 s, usb0 up 17.9 s,
+**IEx prompt 18.16 s uptime** (range 18.01–18.23), 19.67 s from U-Boot banner.
+
+On-device decomposition of the ~13 s between `beam.smp` start and heart:
+3,132 modules / 31.7 MB preloaded in embedded mode. Reading them by full path
+costs 0.75–2 s warm / 6.2 s cold with path search, `prepare_loading` costs
+7.9 s on one core / 4.6 s on two. A failed `prim_file:read_file` costs
+~0.4–0.48 ms whether the cache is cold or warm, even in a missing directory. Each
+app's boot path is `[consolidated, app/ebin]`, so ~3,000 modules miss once in
+`consolidated/` (~1.2–1.5 s serial, split over 3 loader workers).
+
+### B1: boot_bench (Nerves 2 pre.4 + v2 branch, EROFS lz4hc, OTP 29.1.2, interactive mode) — 2026-10-17
+
+`mix nerves.new` template ported to Nerves 2 (nerves_pack, toolshed,
+ring_logger), 38 apps, 504 modules loaded at the end. 5 runs: **IEx 5.90 s
+uptime** (5.71–6.04), 7.43 s from U-Boot banner. `beam.smp` 0.75 s, VM start
+0.93 s.
+
+The template doesn't set `-mode`, so the release boots in interactive mode
+(lazy loading with OTP 26+'s boot path cache). Boot-script `primLoad` is ~5
+ms. The time is in app starts (one run): `vintage_net` 1.42 s,
+`nerves_runtime` 0.60 s, `Config.Provider.boot` 0.57 s, `kernel` 0.48 s,
+`application_controller` 0.24 s, `ssl` 0.18 s, `mdns_lite` 0.14 s. Script done
+→ IEx 0.18 s.
+
+## Results
+
+| id | variant | IEx (uptime, median of 5) | Δ vs B1 | notes |
+| --- | --- | --- | --- | --- |
+| B1 | boot_bench interactive (default) | 5.90 s | — | 504 modules loaded at end |
+| E1 | `-mode embedded` | 7.97 s | +2.07 s | primLoad 4.58 s, 1,073 modules |
+| E2 | embedded + exact boot paths | 7.90 s / 7.85 s (2 batches) | +2.0 s | ~0.07 s better than E1: path misses aren't the cost |
+| E3 | embedded + single-file bundle | crashed | — | bundle load 4.04 s for 1,021 modules (one `-init_debug` boot); then "Could not start kernel pid (application_controller) (normal)", U-Boot reverted |
+
+| E4 | defer vintage_net/mdns_lite/ssl/inets (+dependents) to a background start | IEx 5.03 s, ready 6.16 s | IEx −0.87, ready +0.36 | moves work after IEx and competes with it; usb0 later |
+| E5 | E4 with deferred starter at low priority | IEx 4.89 s, ready 6.07 s | IEx −1.0, ready +0.27 | rejected: production cares about ready, not IEx |
+| B2 | baseline remeasured with ready metric | IEx 5.90 s, **ready 5.80 s** | — | ready = max(all apps started, network iface :lan) |
+| E6 | profile-guided background preload (481 modules from a previous boot, app order, `code:ensure_modules_loaded/1` chunks of 16, waits for `code_server`) | IEx 5.09 s, **ready 5.45 s**, apps 4.97 s | IEx −0.81, ready −0.35, apps −0.83 | **kept**. vintage_net start drops from 1.43 s to 0.03 s; usb0 now the last item |
+
+| E7 | E6 + no runtime config provider (RingLogger added in `Application.start/2`), same contaminated 482-module profile | ready 5.36 s | −0.44 | profile included modules loaded by my ssh report eval |
+| E7b | no runtime config, no preload (1 run) | ready 5.64 s | −0.16 | |
+| E8 (invalid) | E7 with a clean profile (348 modules snapshotted at `iex.exs`, before any ssh) | IEx 4.48 s, apps 4.31 s, **ready 4.83 s** | IEx −1.42, apps −1.49, **ready −0.97** | invalid: `Mix.target()` called at runtime crashed `boot_bench`'s start, so RingLogger wasn't running (temporary app, boot continued silently) |
+| E8b | E8 fixed (compile-time target check), profile re-taken (349 modules) | IEx 4.72 s, apps 4.32 s, **ready 4.80 s** | IEx −1.18, apps −1.48, **ready −1.00** | **kept**. 38 apps + RingLogger verified. Profile hygiene matters |
+| E9 | E8 + no `eth0` in VintageNet config | ready 4.78 s | −0.05 vs E8 | noise; not kept |
+
+measure.py now records started apps and RingLogger state per run and warns
+when they differ, after E8 showed that a broken app start can look like a win.
+
+| E10 | E8b + `toolshed`, `ssl`, `inets` as `:load` (only toolshed needs them, for HTTP helpers) | apps 3.53 s (3 of 5 runs), **ready 4.77 s** | apps −0.8, ready −0.03 | apps finish earlier but the network doesn't move; 35 apps by design |
+
+Critical path is now the network (diag builds with BOOT_DIAG=1 log to
+/tmp/boot.log with monotonic timestamps; `diaglog.sh` + `logmap.py`): with
+E10, all apps are started by 3.61 s and VintageNet starts at 3.49 s, but all
+three interfaces log their first "internal configure" only at ~4.33 s, usb0 is
+`:lan` at 4.91 s, and wpa_supplicant starts at 4.97 s. The ~0.8 s gap before
+the first configure step is the next thing to explain. Restart-timing test
+on a running device is pending (lost the USB link). Also: nerves_logging
+replays ~250 kernel log lines through Logger at ~3.1 s; nerves_time sets the
+system clock mid-boot (3.4–4.5 s), so log timestamps must use the monotonic
+clock.
+
+### Priorities (Jon, 2026-10-17)
+
+Focus on time to critical local systems first, then the console (IEx), then
+networking. WiFi tuning is parked. Trellis is the test bed, but the goal is
+speedups that apply to Nerves systems in general (Linux + BEAM).
+
+### WiFi (parked)
+
+The bench now runs over WiFi (`kabellos`, configured over serial), because
+the Mac's USB Ethernet driver wedges. E8b over WiFi: apps 4.28 s, IEx 4.46 s,
+wlan0 `:lan` **10.41 s** (10.27–12.16). Timeline (diag build): wlan0
+configure 4.33 s → rtw88 registered 4.39 s → wpa_supplicant ready 5.00 s →
+**~2 s scan** → auth/assoc 7.05–7.79 s → udhcpc starts on association (7.80 s)
+and its first DISCOVER (7.90 s) goes out **before the WPA 4-way handshake
+completes (7.97 s)**, so it's lost and busybox retries 3 s later → lease
+10.32 s. Two clear WiFi wins for later: start DHCP on CTRL-EVENT-CONNECTED or
+use `udhcpc -T 1` (~−2 s), and `scan_freq` for known networks (~−1.5 s).
+Patches with compile-time knobs are in `patches/` (BOOT_UDHCPC_T,
+BOOT_SCAN_FREQ). The WE1 run (`-T 1`) is invalid: a forced deps.compile
+outside the Nerves environment built `if_monitor` for macOS (no interfaces at
+all); variant.sh now recompiles inside the Nerves env and checks the binary
+is ARM.
+
+### Kernel initcalls (`initcall_debug` via U-Boot `console_args`, no rebuild)
+
+`jent_mod_init` (CPU jitter entropy RNG self-test) takes **230 ms**, which
+explains the gap after squashfs init. Next: `deferred_probe_initcall` 80 ms,
+`of_platform_default_populate_init` 20 ms, everything else <11 ms. Jitter
+entropy is built in because `CONFIG_CRYPTO_ECDH=y` (in the defconfig since the
+initial commit) selects the default crypto RNG → DRBG → jitterentropy. BT is a
+module, so dropping `=y` should leave ECDH/DRBG/jitterentropy as modules,
+loaded only if Bluetooth is used. Likely applies to other Nerves systems with
+crypto options built in: check their defconfigs.
+
+| K1 | E8b + kernel without `CONFIG_CRYPTO_ECDH=y` (no built-in jitterentropy) | init 0.32 s, beam 0.53 s, **apps 4.10 s**, U-Boot→IEx 5.79 s | init −0.23, apps −0.18, U-Boot→IEx −0.18 | **kept** (system change). `jent_mod_init` gone from boot |
+
+| K2 | K1 + LZ4-compressed zImage (`BR2_LINUX_KERNEL_LZ4=y`; Buildroot overrides `CONFIG_KERNEL_*` in the kernel defconfig) | U-Boot→kernel clock 1.16 s, U-Boot→IEx 5.63 s | −0.12 / −0.16 | **kept**. zImage 4.85 → 5.65 MB; U-Boot +0.03 s from reading/hashing more |
+| K3 | K2 + U-Boot reads only the FIT's size (header `totalsize`) instead of a fixed 8 MB `fit_count` | U-Boot→handoff 0.76 s, U-Boot→IEx 5.52 s | −0.11 / −0.11 | **kept** (`uboot/uboot.env` `fit_boot`). U-Boot MMC reads ~21 MB/s, so every unneeded MB costs ~50 ms. Applies to any FIT-based Nerves system with a padded slot |
+
+| K4 | K3 + FIT image hashes crc32 instead of sha256 (`trellis.its`) | U-Boot→handoff 0.56 s, U-Boot→IEx 5.29 s | −0.21 / −0.22 | **kept**. Still detects storage corruption; fwup verifies images at write time; no FIT signatures are used here. Systems that sign FITs need sha256 + signature (or hardware SHA) |
+
+(Before K4) U-Boot spent ~0.26 s on sha256 of the 5.6 MB kernel (between
+"Loading kernel" and "Loading fdt").
+
+| F1 | K4 + EROFS without compression (`BOOT_ROOTFS=erofs-none`) | script start 1.28 s, apps 4.23 s, U-Boot→IEx 5.51 s | +0.08 / +0.13 / +0.21 | rejected: rootfs 25 → 44 MB, MMC reads cost more than lz4hc decompression saves |
+
+### Frank's asks (re-read 2026-10-17)
+
+Primary metric: **time to IEx prompt**; WiFi is the endpoint for most
+people; wants a bootchart-like view of Erlang boot; hypothesis: load Linux
+drivers earlier (nerves_uevent) to overlap I/O with BEAM CPU; needs
+multi-second wins. So report both `iex_k` and system readiness. The
+deferred-networking variant (E4/E5, IEx −1.0 s) becomes an opt-in for the
+IEx metric rather than a rejection. Still to do: driver-early hypothesis,
+Livebook-scale test, shareable bootchart.
+
+| F2 | K4 + background driver coldplug from erlinit `pre_run_exec` (Frank's hypothesis; `modprobe -a` over `/sys/bus/*/devices/*/modalias`, again 1 s later for USB) | drivers loaded 1.66–2.06 s instead of ~2.9–3.4 s; IEx 4.44 s, apps 4.06 s, wlan0 `:lan` 7.42 s | IEx −0.06, apps −0.04, wlan0 `:lan` −0.13 (vs `best`: IEx 4.50, apps 4.10, wlan0 `:lan` 7.55) | ~0.1 s, as Frank guessed. Drivers aren't on the critical path: VintageNet only starts configuring wlan0 ~4.3 s, then scan and DHCP dominate. Keep in mind for WiFi work |
+
+| I1 | `best` + IEx-first (defer vintage_net/mdns_lite/ssl/inets to a low-priority background start) | script done 3.12 s, IEx 4.62 s, usb0 IPv4 4.56 s | IEx +0.12 | rejected with preload on: IEx then waits ~1.5 s in `iex.exs` (the MOTD needs the deferred apps) |
+| I2 | `best` + MOTD printed asynchronously (`spawn(fn -> NervesMOTD.print() end)` in `iex.exs`) | **IEx 4.11 s**, U-Boot→IEx 4.97 s | **IEx −0.39** | **kept** for IEx. The template's synchronous MOTD costs ~0.4 s before the prompt (system queries + ~1.5 KB at 115200 baud). The prompt now appears ~10 ms after `iex.exs` starts |
+| I3 | I1 + I2 | IEx 4.04 s, apps 4.42 s, usb0 IPv4 4.79 s | IEx −0.07 vs I2, network +0.3 | not worth it |
+| I4 | I2 without `use Toolshed` | IEx 4.11 s | 0 | `use Toolshed` is cheap once preloaded. With MOTD off and Toolshed not yet preloaded it showed ~0.4 s bimodally |
+
+**Cumulative (boot_bench, IEx metric):** B1 5.90 s uptime / 7.43 s from
+U-Boot → I2 4.11 s / 4.97 s (−1.79 s / −2.46 s).
+
+measure.py now records the first `:lan`, IPv4 and `:internet` time per
+interface (BootBench.NetEvents subscribes to VintageNet at app start).
+VintageNet reports `:lan` at WiFi association, before DHCP.
+
+### Livebook (large app, 124 apps) — 2026-10-17
+
+nerves_livebook main (7e11b91) ported to Nerves 2 (v2 branch, no shoehorn,
+OTP 29.1.2) on this branch's system (K1–K4: no built-in jitterentropy, LZ4
+kernel, header-sized FIT read, crc32 FIT hashes), with `boot_tools` added.
+Upstream ships `-mode embedded` and keeps `Docs` chunks in beams. 5 boots
+each, uptime:
+
+| variant | IEx | U-Boot→IEx | apps started | usb0 IPv4 | wlan0 IPv4 |
+| --- | --- | --- | --- | --- | --- |
+| B0 original firmware (Nerves 1, OTP 29.0, squashfs) | 18.16 | 19.67 | — | — | — |
+| LB1 Nerves 2 + system, `-mode embedded` | 17.28 | 18.13 | 17.01 | 16.36 | 23.24 |
+| LB2 `-mode interactive` | 11.88 | 12.75 | 11.50 | 6.49 | 13.38 |
+| LB3 interactive + profile-guided preload (698 modules) | **7.83** | **8.71** | 7.46 | 6.47 | 13.18 |
+
+| LB4 | LB3 + async MOTD | **7.40** | **8.26** | 7.43 | 6.55 | — |
+| LB5 | LB4 + strip `Docs` chunks | 7.41 | 8.26 | 7.44 | 6.51 | — |
+
+| LB6 | LB4 with preload chunks of 8 | 8.19 | 9.06 | 8.24 | 6.58 | — |
+| LB7 | LB4 with preload chunks of 64 | 7.07 | 7.94 | 7.10 | 6.42 | — |
+| LB8 | LB4 with preload chunks of 256 | **6.60** | **7.47** | 6.66 | 6.26 | — |
+| LB9 | LB4 with one batch of all 698 modules | 6.73 | 7.59 | 6.77 | 6.38 | — |
+
+Each preload chunk ends with one `finish_loading` in `code_server`, so larger
+chunks serialize less; one giant batch blocks on-demand loads a little longer.
+boot_bench: chunk 64 → IEx 4.09 s, chunk 256 → **4.05 s** (16 was 4.16 s with
+boot_tools). Default is now 256. **Livebook IEx: 18.16 s → 6.60 s (−11.6 s).**
+
+LB5 is inconclusive: the firmware was identical to LB4's (the strip setting
+didn't apply), and `Docs` are only ~4% of Livebook's beam bytes (220 KB of
+5.4 MB), so the expected effect is small anyway.
+
+Embedded mode preloads 3,132 modules (11.9 s of `primLoad`) although only
+~700 are used by the time IEx starts. Interactive + preload: **−10.3 s to IEx
+vs the original firmware**, −9.9 s to network.
+
+Slowest Livebook steps after LB4: `vintage_net` start 1.42 s (127 lazily
+loaded modules the preload hadn't reached), `Config.Provider.boot`
+(`runtime.exs`) 1.39 s (267 modules: Elixir's evaluator/compiler), `kernel`
+start 1.15 s (120 modules, likely Livebook's Elixir EPMD module pulling Elixir
+into kernel start), `nerves_runtime` 0.52 s, `livebook` 0.37 s, `jose` 0.35 s.
+CPU busy 9.45 of 12.37 CPU-s during the boot script (76%).
+
+### Before U-Boot's banner (reset → banner) — corrected
+
+An earlier entry here said reset → banner took 1.93 s. That was a harness
+bug: lines are stamped with the arrival time of their first byte, and the
+kernel's "reboot: Restarting system" message was appended to a console line
+(the IEx prompt) that had started long before. bootcap now stamps the restart
+message by when its own bytes arrive: **reset → banner = 0.69 s**
+(0.66–0.69), of which 0.5 s is the soft-reboot watchdog delay (Linux restarts
+sunxi via the watchdog at its minimum interval). U-Boot's own `reset` → banner
+is 0.78 s.
+
+A bootstage-instrumented U-Boot (`uboot/0004-sunxi-bootstage-timing.patch`:
+`timer_get_boot_us()` from the 24 MHz ARM generic counter; plus
+`CONFIG_{SPL_,}BOOTSTAGE`, `BOOTSTAGE_REPORT`, `BOOTSTAGE_STASH` at
+0x43f00000) was written to the board (original backed up as
+/root/uboot-backup-orig.bin). Counter timeline:
+
+| µs since counter start | mark |
+| --- | --- |
+| 0 | reset |
+| 25,424 | SPL starts |
+| 81,379 | SPL done (incl. DDR3 init; DRAM auto-scan is *not* slow) |
+| 82,052 | U-Boot proper `board_init_f` (driver model pre-reloc: 72 ms) |
+| 211,860 | `board_init_r` |
+| 309,222 | `eth_common_init` (USB gadget Ethernet / RNDIS: ~97 ms) |
+| 320,703 | `main_loop` |
+| 642,052 | `bootm_start` (env, FIT header + 5.7 MB read ≈ 0.27 s) |
+| 751,216 | kernel starts |
+
+U-Boot built with `CONFIG_NO_NET=y` (no USB gadget Ethernet): kernel starts
+at 723 ms instead of 751 ms (−28 ms; most of the gap before
+`eth_common_init` was other `board_init_r` work). Not kept: RNDIS may be used
+and the gain is small. From `main_loop` to `bootm_start` (~0.32 s) is mostly
+reading the 5.7 MB FIT at SD high-speed rates (~21 MB/s), so a smaller kernel
+is the lever there (~50 ms/MB).
+
+Note: every measurement so far ran the board's original U-Boot (from the
+Livebook-era fresh install); fwup upgrades never rewrite U-Boot. That
+original is restored after the bootstage experiments.
+
+So a cold boot spends ~0.1 s in BootROM+SPL. U-Boot proper's biggest
+avoidable items are the network/USB-gadget init (~0.1 s) and driver-model
+setup (72 ms). The bootstage report itself adds ~0.13 s of console output.
+
+### Toolchain hardening (PIE / SSP / RELRO), clean full rebuild
+
+Buildroot defaults build everything as PIE with `-fstack-protector-strong`
+and full RELRO (BIND_NOW). With all three off (`# BR2_PIC_PIE is not set`,
+`BR2_SSP_NONE`, `BR2_RELRO_NONE`; `beam.smp` confirmed non-PIE), same app
+settings (preload profile v4, no runtime config, async MOTD):
+
+| app | hardened | hardening off | Δ |
+| --- | --- | --- | --- |
+| boot_bench apps / IEx | 3.97 / 4.03 s | 3.85 / 3.88 s | −0.12 / −0.15 |
+| Livebook IEx | 6.60 s (LB8) | 6.79 s | +0.19 (noise) |
+
+Not worth dropping hardening; reverted. Also: the earlier "slow `ssl`" and
+"slow `boot_tools`" steps were waits behind the last preload batch for
+modules missing from the profile (fixed by re-profiling: boot_bench-v4).
+
+### Slimming the always-loaded first module group (`BOOT_FIRST_DROP`)
+
+systools puts `erl_parse`, `erl_lint` and `erl_eval` (403 KB of 786 KB) in the
+first primLoad group, which is loaded before anything else in every mode.
+Same settings as `hard-on` (IEx 4.03 s):
+
+| dropped from first group | script start | apps | IEx | U-Boot→IEx |
+| --- | --- | --- | --- | --- |
+| none (hard-on) | 1.197 | 3.966 | 4.027 | 4.902 |
+| erl_lint, erl_eval | 1.133 | 3.937 | 3.995 | 4.856 |
+| erl_lint, erl_eval, erl_parse | **1.071** | **3.925** | **3.961** | **4.805** |
+
+All 39 apps and RingLogger run in both. Interactive mode loads them lazily
+when used (the preload profile includes them). ~−0.07 s to IEx; worth
+offering as an option, not a default, since anything that evaluates or
+parses Erlang terms before `code_server` is up would break.
+
+### erlinit: write the next boot's RNG seed in parallel (K5)
+
+`patches/erlinit/0001-Save-the-next-boot-RNG-seed-while-Erlang-starts.patch`
+(system `BR2_GLOBAL_PATCH_DIR` now includes `${NERVES_DEFCONFIG_DIR}/patches`).
+seedrng's load+credit (incl. the unlink + directory fsync that must precede
+crediting) stays before launch; writing + fsyncing the new seed happens in a
+forked process right before erlinit execs erlexec. Same settings as hard-on:
+
+| | hard-on | K5 | Δ |
+| --- | --- | --- | --- |
+| beam.smp | 0.53 | **0.45** | −0.08 |
+| apps | 3.97 | **3.85** | −0.12 |
+| IEx | 4.03 | **3.92** | −0.11 |
+
+`crng init done` still at 0.447 s (before the BEAM), and the next boot's
+`seed.credit` is written. General erlinit improvement; worth upstreaming.
+
+### WiFi hints, measured (final config + patched deps, 5 boots each)
+
+| variant | wlan0 associated (`:lan`) | wlan0 IPv4 |
+| --- | --- | --- |
+| final-bb (stock vintage_net) | 7.39 s | 10.41 s |
+| + `udhcpc -T 1` (`BOOT_UDHCPC_T=1`) | 7.24 s | **8.34 s** (−2.07) |
+| + `scan_freq=2412` (`BOOT_SCAN_FREQ`) | 5.74 s | **6.37 s** (−1.98 more) |
+
+The `-T 1` result confirms the lost-first-DISCOVER diagnosis (DISCOVER sent
+before the WPA 4-way handshake completes). A fixed `scan_freq` is fragile
+(the AP can change channel and wpa_supplicant then won't find it); the
+robust version is scanning the last-known frequency first with a full-scan
+fallback, which would be a VintageNet/VintageNetWiFi feature.
+
+### Kernel trim (not kept)
+
+Dropped built-in SquashFS, IPv6 Mobile IPv6, CAN debug devices and the
+SUN4I_SS/SUN8I_SS crypto drivers (other SoCs), and made CAN + J1939 + ISO-TP +
+sun4i CAN modules: zImage 5.65 → 5.47 MB. Kernel clock zero 0.842 vs 0.858 s
+(−16 ms), U-Boot→IEx 4.74 vs 4.78 s (noise). Reverted: not worth changing
+what's built in. The kernel's config is already lean; image size costs
+~50 ms/MB of U-Boot read.
+
+### Where app-start time goes (microstate accounting, current best, 1 boot)
+
+`boot_trace` turns on ERTS microstate accounting at boot-script start and
+snapshots it plus /proc/stat at `script_done`. Boot script (1.20 → 4.11 s,
+2.91 s wall, 5.82 CPU-s available on 2 cores): system busy 3.96 CPU-s (user
+3.07 + kernel 0.89), idle 1.65, iowait 0.17. BEAM normal schedulers:
+emulator 3.62 s (Erlang code incl. `prepare_loading`), GC 0.08, sleep 1.87.
+Dirty I/O schedulers: 1.65 s inside file NIFs (reads and stats). So the
+phase is mostly CPU-bound: code loading/execution plus file reads, including
+in-kernel EROFS lz4hc decompression. A per-process sampler was too costly on
+the T113 (~40 ms per tick, +0.5 s boot); it stays in `boot_trace` for faster
+CPUs but is off.
+
+### BEAM start (beam.smp exec → boot script start ≈ 0.67 s after K1)
+
+A second, throwaway VM on the running board (warm cache) with the
+release's `start_clean` boot: 780 ms to `halt`. With `-init_debug` the first
+`primLoad` group (32 modules, 786 KB, always loaded before `code_server` can
+load lazily) takes **262 ms**. Half of those bytes are `erl_parse` (226 KB),
+`erl_lint` (129 KB) and `erl_eval` (48 KB): systools marks them mandatory
+because `application_controller` parses `sys.config` with them before any
+lazy loading is possible. Leads: avoid text `sys.config` parsing at boot, or
+make the first group smaller/faster to prepare.
+
+Harness hardening: variant.sh aborts on build failure (it used to flash the
+previous image), touches mix.exs to force env-driven recompiles, and checks
+the running firmware UUID. Reboots go over the serial console and reports
+fall back to serial when ssh is down.
+
+Network bring-up (E9 trace): `nerves_uevent` runs modprobe at 2.71 s, the
+rtw88 WiFi driver registers at 3.38 s, `wlan0` reaches `:configured` at 4.76 s
+(wpa_supplicant 4.78 s) and usb0 goes `:lan` right after, at 4.79 s. Next:
+find out why usb0 waits for wlan0, and load drivers before the BEAM.
+
+Takeaways so far:
+
+Takeaways so far: interactive mode with OTP's boot path cache already
+gets most of the benefit of the "known layout" idea. In embedded mode the cost
+is `prepare_loading` (CPU), not lookups. For apps like Livebook built with
+`-mode embedded`, simply switching to interactive is probably worth seconds.
+
+## Ideas queue (ranked by expected gain on boot-to-IEx)
+
+1. Interactive code loading instead of embedded preload (`-mode interactive`).
+   Livebook preloads 3,132 modules (31.7 MB) before any app starts: ~6 s
+   reading + ~8 s `prepare_loading` (single core) on the T113.
+2. Profile-guided preload: preload only modules used during boot, lazy-load
+   the rest.
+3. Concurrent application start (`application:ensure_all_started/3` with
+   `:concurrent`) instead of sequential `start_boot`.
+4. Start IEx before slow/non-essential apps finish.
+5. Rootfs format/compression: squashfs gzip/xz/lz4/zstd/none, EROFS lz4/lzma.
+6. Smaller beams: strip more chunks, fewer apps/modules.
+7. Kernel: LZ4 or uncompressed Image (0.69 s handoff today), skip FIT sha256.
+8. Coldplug kernel modules from erlinit before the BEAM starts (overlap I/O
+   with module loading). Mostly helps WiFi.
+9. CPU at 1.2 GHz instead of 1008 MHz (needs hardware/voltage confirmation).
+10. JIT branch (`origin/jit`): measure effect on load time.

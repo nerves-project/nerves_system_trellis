@@ -1,0 +1,12 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Boot chart</title>
+<style>
+:root{--bg:#fff;--fg:#1d1f23;--dim:#6b7078;--grid:#e6e8eb}
+@media (prefers-color-scheme: dark){:root{--bg:#16181c;--fg:#e4e6ea;--dim:#9096a0;--grid:#2a2d33}}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif;margin:16px}
+.fg{fill:var(--fg)} .dim{fill:var(--dim)} .grid{stroke:var(--grid)}
+.wrap{overflow-x:auto} td{padding:1px 10px;font-family:ui-monospace,monospace;font-size:12px}
+</style></head><body>
+<h2>Boot chart: nb2-e8-fixed <small style="color:var(--dim)">20261017-082854</small></h2>
+<p>Kernel uptime clock. Grey: U-Boot/handoff (serial). Blue: kernel/erlinit. Orange: boot-script module loading. Green: OTP application start. Red dots: events.</p>
+<table><tr><td>uboot_s</td><td>0.842</td></tr><tr><td>kernel_t0</td><td>1.523</td></tr><tr><td>iex_k</td><td>4.745</td></tr><tr><td>iex_total</td><td>6.268</td></tr></table>
+<div class="wrap"><svg xmlns="http://www.w3.org/2000/svg" width="1100" height="156" font-family="ui-monospace,Menlo,monospace" font-size="11"><line x1="337.6" y1="20" x2="337.6" y2="146" class="grid"/><text x="339.6" y="14" class="dim">-1s</text><line x1="466.8" y1="20" x2="466.8" y2="146" class="grid"/><text x="468.8" y="14" class="dim">0s</text><line x1="596.0" y1="20" x2="596.0" y2="146" class="grid"/><text x="598.0" y="14" class="dim">1s</text><line x1="725.3" y1="20" x2="725.3" y2="146" class="grid"/><text x="727.3" y="14" class="dim">2s</text><line x1="854.5" y1="20" x2="854.5" y2="146" class="grid"/><text x="856.5" y="14" class="dim">3s</text><line x1="983.7" y1="20" x2="983.7" y2="146" class="grid"/><text x="985.7" y="14" class="dim">4s</text><text x="4" y="37" class="fg">U-Boot</text><rect x="270.0" y="28" width="108.8" height="12" fill="#8a8f98" rx="2"><title>U-Boot: -1.523 → -0.681 (842 ms)</title></rect><text x="381.8" y="37" class="dim">0.84s</text><text x="4" y="53" class="fg">kernel handoff/decompress</text><rect x="378.8" y="44" width="88.0" height="12" fill="#8a8f98" rx="2"><title>kernel handoff/decompress: -0.681 → 0.000 (681 ms)</title></rect><text x="469.8" y="53" class="dim">0.68s</text><text x="4" y="85" class="fg">IEx prompt</text><circle cx="1080.0" cy="82" r="4" fill="#e25555"><title>IEx prompt @ 4.745s</title></circle><text x="1087.0" y="85" class="dim">4.75s</text></svg></div></body></html>

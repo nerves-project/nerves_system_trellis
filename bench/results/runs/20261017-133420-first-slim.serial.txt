@@ -1,0 +1,104 @@
+    0.000 
+    0.000 
+    0.000 U-Boot 2025.10 (Aug 23 2026 - 21:00:00 +0000) Allwinner Technology
+    0.000 
+    0.000 CPU:   Allwinner R528 (SUN8I)
+    0.000 Model: Trellis T113-S4
+    0.000 DRAM:  256 MiB
+    0.051 Core:  49 devices, 18 uclasses, devicetree: separate
+    0.051 WDT:   Not starting watchdog@20500a0
+    0.051 MMC:   mmc@4020000: 0
+    0.051 Loading Environment from MMC... Reading from MMC(0)... OK
+    0.093 In:    serial@2501000
+    0.114 Out:   serial@2501000
+    0.114 Err:   serial@2501000
+    0.114 Allwinner mUSB OTG (Peripheral)
+    0.114 Net:   using musb-hdrc, OUT ep1out IN ep1in STATUS ep2in
+    0.114 MAC de:ad:be:ef:00:01
+    0.139 HOST MAC de:ad:be:ef:00:00
+    0.139 RNDIS ready
+    0.139 eth0: usb_ether
+    0.139 Hit any key to stop autoboot:  0 
+    0.159 switch to partitions #0, OK
+    0.159 mmc0 is current device
+    0.159 MMC read: dev # 0, block # 26624, count 1 ... 1 blocks read: OK
+    0.159 Working FDT set to 4a000000
+    0.185 MMC read: dev # 0, block # 26624, count 11159 ... 11159 blocks read: OK
+    0.455 ## Loading kernel (any) from FIT Image at 4a000000 ...
+    0.455    Using 'nerves-starter-kit' configuration
+    0.455    Trying 'kernel' kernel subimage
+    0.455    Verifying Hash Integrity ... crc32+ OK
+    0.504 ## Loading fdt (any) from FIT Image at 4a000000 ...
+    0.504    Using 'nerves-starter-kit' configuration
+    0.525    Trying 'fdt-nerves-starter-kit' fdt subimage
+    0.525    Verifying Hash Integrity ... crc32+ OK
+    0.525    Loading fdt from 0x4a5644e0 to 0x41800000
+    0.525    Booting using the fdt blob at 0x41800000
+    0.525 Working FDT set to 41800000
+    0.546    Loading Kernel Image to 40040000
+    0.546    Loading Device Tree to 4af3e000, end 4af45a80 ... OK
+    0.546 Working FDT set to 4af3e000
+    0.572 
+    0.572 Starting kernel ...
+    0.572 
+    0.848 [    0.001200] /cpus/cpu@0 missing clock-frequency property
+    0.872 [    0.001237] /cpus/cpu@1 missing clock-frequency property
+    3.120 Erlang/OTP 29 [erts-17.1.1] [source] [32-bit] [smp:2:2] [ds:2:2:10] [async-threads:1]
+    3.148 
+    3.317 =PROGRESS REPORT==== 17-Oct-2026::19:34:00.048279 ===
+    3.317     supervisor: {local,'Elixir.IEx.Supervisor'}
+    3.317     started: [{pid,<0.402.0>},
+    3.338               {id,'Elixir.IEx.Config'},
+    3.338               {mfargs,{'Elixir.IEx.Config',start_link,[[]]}},
+    3.338               {restart_type,permanent},
+    3.338               {significant,false},
+    3.338               {shutdown,5000},
+    3.338               {child_type,worker}]
+    3.358 
+    3.358 =PROGRESS REPORT==== 17-Oct-2026::19:34:00.050048 ===
+    3.358     supervisor: {local,'Elixir.IEx.Supervisor'}
+    3.358     started: [{pid,<0.403.0>},
+    3.358               {id,'Elixir.IEx.Broker'},
+    3.358               {mfargs,{'Elixir.IEx.Broker',start_link,[[]]}},
+    3.379               {restart_type,permanent},
+    3.379               {significant,false},
+    3.379               {shutdown,5000},
+    3.379               {child_type,worker}]
+    3.379 
+    3.379 =PROGRESS REPORT==== 17-Oct-2026::19:34:00.052064 ===
+    3.379     supervisor: {local,'Elixir.IEx.Supervisor'}
+    3.399     started: [{pid,<0.404.0>},
+    3.399               {id,'Elixir.IEx.Pry'},
+    3.399               {mfargs,{'Elixir.IEx.Pry',start_link,[[]]}},
+    3.399               {restart_type,permanent},
+    3.399               {significant,false},
+    3.399               {shutdown,5000},
+    3.421               {child_type,worker}]
+    3.421 
+    3.421 =PROGRESS REPORT==== 17-Oct-2026::19:34:00.054586 ===
+    3.421     application: iex
+    3.421     started_at: nonode@nohost
+    3.421 
+    4.669 Interactive Elixir (1.20.4) - press Ctrl+C to exit (type h() ENTER for help)
+    5.222 [38;5;50mToolshed[0m imported.
+    5.245 iex(1)> [J[38;5;24m████▄▄    [38;5;74m▐███
+    5.620 [38;5;24m█▌  ▀▀██▄▄  [38;5;74m▐█
+    5.620 [38;5;24m█▌  [38;5;74m▄▄  [38;5;24m▀▀  [38;5;74m▐█   [39mN  E  R  V  E  S
+    5.620 [38;5;24m█▌  [38;5;74m▀▀██▄▄  ▐█
+    5.640 [38;5;24m███▌    [38;5;74m▀▀████[0m
+    5.640 [0mboot_bench 0.1.0 - nose-jealous (92813a14-c324-52d9-1592-dcd1f12003a2)
+    5.640 
+    5.640   Serial       : 0123B817BD12A177EE
+    5.640 [0m  Uptime       : 3.880 seconds
+    5.661 [0m  Clock        : [33m2026-10-17 19:34:02 UTC (unsynchronized)[0m
+    5.661 [0m
+    5.661   Firmware     : [32mValid (B)               [0mApplications : 39 started[0m
+    5.661   Memory usage : 49 MB (20%)             [0mPart usage   : 5 MB (3%)[0m
+    5.661   Load average : 0.00 0.00 0.00          [0mTemperature  : N/A[0m
+    5.681   Hostname     : nerves-0123b817bd12a177e[0mPlatform     : trellis arm[0m
+    5.681 
+    5.681   usb0         : 172.31.3.157/30, fe80::54:52ff:fe4c:2/64
+    5.681 [0m
+    5.681 Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
+    5.704 [0m
+    5.704 iex(1)> 
