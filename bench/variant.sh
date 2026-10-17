@@ -20,7 +20,7 @@ touch mix.exs
 # Deps patched with compile-time env knobs (see patches/) must be rebuilt too
 # (inside the Nerves cross-compile environment, or the C helpers get built for the host)
 if [ "$APP" = boot_bench ]; then
-  env "$@" MIX_TARGET=trellis MIX_ENV=prod mise x -- mix do nerves_bootstrap.init + deps.compile vintage_net vintage_net_wifi --force > "$HERE/results/depscompile-$LABEL.log" 2>&1 || { echo "deps.compile failed"; exit 1; }
+  env "$@" MIX_TARGET=trellis MIX_ENV=prod mise x -- mix do nerves_bootstrap.init + deps.compile vintage_net vintage_net_wifi nerves_uevent --force > "$HERE/results/depscompile-$LABEL.log" 2>&1 || { echo "deps.compile failed"; exit 1; }
 fi
 env "$@" MIX_TARGET=trellis MIX_ENV=prod mise x -- mix firmware > "$HERE/results/build-$LABEL.log" 2>&1 || { echo "BUILD FAILED, see results/build-$LABEL.log"; grep -E "\*\* \(" "$HERE/results/build-$LABEL.log"; exit 1; }
 grep -E "^\* " "$HERE/results/build-$LABEL.log" | grep -v creating

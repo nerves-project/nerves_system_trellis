@@ -134,3 +134,13 @@ end
 if System.get_env("BOOT_TOOLSHED") == "0" do
   config :boot_bench, toolshed: false
 end
+
+# Experiment: nerves_uevent without modprobe (drivers loaded elsewhere)
+if System.get_env("BOOT_UEVENT_NO_MODPROBE") == "1" do
+  config :nerves_uevent, autoload_modules: false
+end
+
+# Experiment: skip nerves_uevent's coldplug scan (upper bound of its cost)
+if System.get_env("BOOT_UEVENT_SKIP_DISCOVER") == "1" do
+  config :nerves, :erlinit, env: "NERVES_UEVENT_SKIP_DISCOVER=1"
+end

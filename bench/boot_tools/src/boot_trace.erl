@@ -2,7 +2,7 @@
 %% boot script. Marks are kept by a tiny registered process so they survive
 %% the boot process exiting. Read them later with boot_trace:marks/0.
 -module(boot_trace).
--export([start/0, mark/1, marks/0, snapshot/0, samples/0, cpu/0, init/0, sampler/2]).
+-export([start/0, mark/1, marks/0, snapshot/0, samples/0, cpu/0, init/0, sampler/2, proc_snapshot/0, procs/0]).
 
 start() ->
     T = erlang:monotonic_time(microsecond),
@@ -32,6 +32,22 @@ mark(Label) ->
             lists:member(Label, [script_done, iex_exs]) andalso (Pid ! {cpu, Label, cpu_snapshot()})
     end,
     ok.
+
+%% One-time snapshot of per-process reductions (CPU work) at the end of the
+%% boot script (inserted by BootTools.Step when BOOT_PROC_SNAPSHOT=1).
+proc_snapshot() ->
+    T = erlang:monotonic_time(microsecond),
+    Procs = [{who(P), R} || P <- erlang:processes(),
+                            {reductions, R} <- [erlang:process_info(P, reductions)]],
+    case whereis(boot_trace) of
+        undefined -> ok;
+        Pid -> Pid ! {procs, {T, Procs}}
+    end,
+    ok.
+
+procs() ->
+    boot_trace ! {get_procs, self()},
+    receive {boot_trace_procs, S} -> S after 5000 -> timeout end.
 
 cpu_snapshot() ->
     Msacc = try erlang:statistics(microstate_accounting) catch _:_ -> undefined end,
@@ -102,7 +118,7 @@ marks() ->
     boot_trace ! {get, self()},
     receive {boot_trace, Marks} -> Marks after 5000 -> timeout end.
 
-init() -> put(snapshot, []), put(samples, []), put(cpu, []), loop([]).
+init() -> put(snapshot, []), put(samples, []), put(cpu, []), put(procs, undefined), loop([]).
 
 loop(Acc) ->
     receive
@@ -110,6 +126,8 @@ loop(Acc) ->
         {get_snapshot, From} -> From ! {boot_trace_snapshot, get(snapshot)}, loop(Acc);
         {samples, S} -> put(samples, S), loop(Acc);
         {cpu, L, S} -> put(cpu, [{L, S} | get(cpu)]), loop(Acc);
+        {procs, S} -> put(procs, S), loop(Acc);
+        {get_procs, From} -> From ! {boot_trace_procs, get(procs)}, loop(Acc);
         {get_cpu, From} -> From ! {boot_trace_cpu, lists:reverse(get(cpu))}, loop(Acc);
         {get_samples, From} -> From ! {boot_trace_samples, get(samples)}, loop(Acc);
         {mark, T, Label} -> loop([{T, Label, 0} | Acc]);

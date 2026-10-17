@@ -82,6 +82,8 @@ defmodule BootTools.Report do
           do: for({t, ifn, v} <- BootTools.NetEvents.events(), do: %{t: to_up.(t), ifname: ifn, value: inspect(v)}),
           else: []
         ),
+      proc_snapshot: proc_snapshot(to_up),
+      uevent: uevent_info(),
       boot_modules:
         if(Code.ensure_loaded?(:boot_trace) and function_exported?(:boot_trace, :snapshot, 0),
           do: :boot_trace.snapshot() |> Enum.reject(&(:code.which(&1) == :preloaded)) |> Enum.map(&Atom.to_string/1) |> Enum.sort(),
@@ -124,6 +126,42 @@ defmodule BootTools.Report do
   defp msacc_totals(_), do: nil
 
   defp to_us(c), do: Map.new(c, fn {k, v} -> {k, :erlang.convert_time_unit(v, :perf_counter, :microsecond)} end)
+
+  defp proc_snapshot(to_up) do
+    case Code.ensure_loaded?(:boot_trace) and function_exported?(:boot_trace, :procs, 0) and :boot_trace.procs() do
+      {t, procs} when is_list(procs) ->
+        total = procs |> Enum.map(&elem(&1, 1)) |> Enum.sum()
+        top =
+          procs
+          |> Enum.group_by(fn {who, _} -> inspect(who) end, &elem(&1, 1))
+          |> Enum.map(fn {who, rs} -> %{who: who, reductions: Enum.sum(rs), count: length(rs)} end)
+          |> Enum.sort_by(&(-&1.reductions))
+          |> Enum.take(25)
+
+        %{t: to_up.(t), total_reductions: total, top: top}
+
+      _ ->
+        nil
+    end
+  end
+
+  defp uevent_info() do
+    stats = if Process.whereis(NervesUEvent.UEvent), do: inspect(apply(NervesUEvent.UEvent, :stats, []), limit: :infinity), else: nil
+    props = if Code.ensure_loaded?(PropertyTable) and Process.whereis(NervesUEvent), do: length(PropertyTable.get_all(NervesUEvent)), else: nil
+
+    # CPU time (jiffies) of the uevent port program, including reaped modprobe children
+    cpu =
+      for pid <- File.ls!("/proc"), pid =~ ~r/^\d+$/,
+          {:ok, cmd} <- [File.read("/proc/#{pid}/cmdline")],
+          String.contains?(cmd, "nerves_uevent"),
+          {:ok, stat} <- [File.read("/proc/#{pid}/stat")] do
+        [_, rest] = String.split(stat, ") ", parts: 2)
+        f = String.split(rest)
+        %{pid: pid, utime: Enum.at(f, 11), stime: Enum.at(f, 12), cutime: Enum.at(f, 13), cstime: Enum.at(f, 14)}
+      end
+
+    %{stats: stats, properties: props, port_cpu_jiffies: cpu}
+  end
 
   def json(), do: collect() |> JSON.encode!() |> IO.puts()
 

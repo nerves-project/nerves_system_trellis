@@ -291,6 +291,35 @@ before the WPA 4-way handshake completes). A fixed `scan_freq` is fragile
 robust version is scanning the last-known frequency first with a full-scan
 fallback, which would be a VintageNet/VintageNetWiFi feature.
 
+### nerves_uevent (Frank's suggestion to pick on it)
+
+`BOOT_PROC_SNAPSHOT=1` records every process's reductions when the boot
+script finishes; the report adds `NervesUEvent.UEvent.stats/0`, the property
+count and the uevent port's CPU time (including reaped modprobe children).
+Final small-app config, at script end (3.87 s):
+
+- Coldplug: 398 uevents (395 `add`), 382 properties. NervesUEvent's
+  processes (UEvent, its PropertyTable updater, InputListener) ≈ 54k
+  reductions, ~7% of live processes' reductions (`code_server` is 45%).
+- Port program: 30 ms CPU; its modprobe children: **230 ms CPU**, nearly
+  all kernel time loading the WiFi stack.
+
+| variant | apps | IEx | wlan0 IPv4 |
+| --- | --- | --- | --- |
+| ue-base (final config) | 3.87 | 3.92 | — |
+| modprobe off, drivers loaded by a pre-BEAM background coldplug | 3.97 | 4.01 | 10.41 |
+| + no coldplug scan at all (`NERVES_UEVENT_SKIP_DISCOVER`, upper bound) | 3.85 | 3.84 | 10.38 |
+
+So handling the coldplug event storm costs ~0.12–0.17 s here, and loading
+drivers before the BEAM doesn't help on 2 busy cores (it competes with BEAM
+startup). Every event is its own port message plus its own
+`PropertyTable.put` call; batching (e.g. `put_many` per port read) is the
+obvious improvement. Boards with more devices pay proportionally more.
+
+Bug found: `NervesUEvent.stats/0` (nerves_uevent 0.1.7) is
+`def stats(), do: NervesUEvent.stats()` and recurses forever; it should
+delegate to `NervesUEvent.UEvent.stats/0`. Calling it hung the IEx console.
+
 ### Kernel trim (not kept)
 
 Dropped built-in SquashFS, IPv6 Mobile IPv6, CAN debug devices and the

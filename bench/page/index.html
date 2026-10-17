@@ -174,7 +174,8 @@ footer { color: var(--muted); font-size: 13px; }
     <div>
       <h2 id="h-nohelp">Tried, didn't help</h2>
       <ul class="plain">
-        <li><b>Loading drivers before the BEAM</b> (the nerves_uevent idea): drivers load 1.3 s earlier, IEx and WiFi only ~0.1 s. VintageNet starts configuring wlan0 at ~4.3 s, then scan and DHCP dominate.</li>
+        <li><b>Loading drivers before the BEAM</b> (the nerves_uevent idea): drivers load 1.3 s earlier, IEx and WiFi ~0.1 s or less. VintageNet starts configuring wlan0 at ~4.3 s, then scan and DHCP dominate, and early driver loading competes with BEAM startup.</li>
+        <li><b>nerves_uevent's coldplug</b>: 398 uevents at boot, each its own message and <code>PropertyTable.put</code>. Skipping the scan entirely saves at most ~0.15 s; batching updates is the likely fix. Also found: <code>NervesUEvent.stats/0</code> recurses forever.</li>
         <li><b>Exact boot paths</b> (no failed lookups) and a <b>single-file module bundle</b>: interactive mode with OTP's boot path cache beats both; in embedded mode the cost is preparing code, not finding it.</li>
         <li><b>Hardening off</b> (PIE, SSP, RELRO): ≤0.15 s; not worth it.</li>
         <li><b>Uncompressed EROFS</b>: +0.2 s. <b>Kernel trim</b>: −16 ms. <b>U-Boot without networking</b>: −28 ms.</li>

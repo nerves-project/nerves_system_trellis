@@ -23,6 +23,13 @@ defmodule BootTools.Step do
       rewrite!(Path.join(rel_dir, "start.boot"), &BootTools.Defer.transform(&1, release, seeds))
     end
 
+    if System.get_env("BOOT_PROC_SNAPSHOT") == "1" do
+      rewrite!(Path.join(rel_dir, "start.boot"), fn instrs ->
+        {a, b} = Enum.split_while(instrs, &(&1 != {:progress, :started}))
+        a ++ [{:apply, {:boot_trace, :proc_snapshot, []}} | b]
+      end)
+    end
+
     if drop = System.get_env("BOOT_FIRST_DROP") do
       mods = drop |> String.split(",", trim: true) |> Enum.map(&String.to_atom/1)
       rewrite!(Path.join(rel_dir, "start.boot"), &drop_from_first_group(&1, mods))

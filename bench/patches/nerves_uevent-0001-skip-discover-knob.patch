@@ -1,0 +1,13 @@
+--- a/c_src/uevent.c
++++ b/c_src/uevent.c
+@@ -788,7 +788,9 @@
+     // missing device additions. Removals between restarts can still be missed.
+     // This is unhandled, but less of an issue since restarts should be rare
+     // and removed devices usually cause errors against anything using them.
+-    uevent_discover();
++    // Boot-time experiment: NERVES_UEVENT_SKIP_DISCOVER=1 skips the coldplug scan
++    if (getenv("NERVES_UEVENT_SKIP_DISCOVER") == NULL)
++        uevent_discover();
+ 
+     for (;;) {
+         struct pollfd fdset[3];

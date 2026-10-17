@@ -91,8 +91,15 @@ WiFi IPv4 23.2 → 13.2 s). No changes to Livebook's own code.
   module bundle: ~0.5 s ceiling, crashed; interactive mode beats both.
 - Uncompressed EROFS: +0.2 s (more MMC reads than lz4hc decompression saves).
 - Loading drivers before the BEAM (Frank's nerves_uevent idea): drivers load
-  1.3 s earlier, IEx/WiFi gain ~0.1 s. VintageNet only starts configuring
-  wlan0 at ~4.3 s, then scan + DHCP dominate.
+  1.3 s earlier, IEx/WiFi gain ~0.1 s or less. VintageNet only starts
+  configuring wlan0 at ~4.3 s, then scan + DHCP dominate; and on 2 busy
+  cores, pre-BEAM driver loading competes with BEAM startup.
+- nerves_uevent's coldplug: 398 uevents at boot, each its own port message
+  and `PropertyTable.put`. Skipping the scan entirely (upper bound) saves
+  ~0.12–0.17 s; modprobe children use 0.23 s of CPU. Batching the
+  PropertyTable updates is the likely improvement. Also found a bug:
+  `NervesUEvent.stats/0` recurses forever (should call
+  `NervesUEvent.UEvent.stats/0`).
 - Turning off toolchain hardening (PIE/SSP/RELRO): ≤0.15 s on the small app,
   nothing measurable on Livebook. Not worth the security trade-off.
 - U-Boot without networking (`CONFIG_NO_NET`): −28 ms.
