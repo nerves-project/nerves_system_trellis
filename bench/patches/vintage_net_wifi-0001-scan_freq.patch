@@ -1,0 +1,25 @@
+Subject: vintage_net_wifi: compile-time scan_freq knob (BOOT_SCAN_FREQ), boot-time experiment
+
+--- a/lib/vintage_net_wifi.ex
++++ b/lib/vintage_net_wifi.ex
+@@ -15,6 +15,12 @@
+ # SPDX-License-Identifier: Apache-2.0
+ #
+ defmodule VintageNetWiFi do
++  # Boot-time experiment: restrict scans to known frequencies, chosen at
++  # compile time, e.g. BOOT_SCAN_FREQ=2412.
++  @scan_freq (case System.get_env("BOOT_SCAN_FREQ") do
++                nil -> nil
++                f -> "scan_freq=" <> f
++              end)
+   @moduledoc """
+   WiFi support for VintageNet
+ 
+@@ -629,6 +635,7 @@
+       into_config_string(wifi, :bssid),
+       into_config_string(wifi, key_mgmt),
+       into_config_string(wifi, :scan_ssid),
++      @scan_freq,
+       into_config_string(wifi, :priority),
+       into_config_string(wifi, :bssid_allowlist),
+       into_config_string(wifi, :bssid_denylist),

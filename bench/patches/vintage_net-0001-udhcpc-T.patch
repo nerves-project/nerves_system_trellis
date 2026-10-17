@@ -1,0 +1,26 @@
+Subject: vintage_net: compile-time udhcpc -T knob (BOOT_UDHCPC_T), boot-time experiment
+
+--- a/lib/vintage_net/ip/ipv4_config.ex
++++ b/lib/vintage_net/ip/ipv4_config.ex
+@@ -5,6 +5,12 @@
+ # SPDX-License-Identifier: Apache-2.0
+ #
+ defmodule VintageNet.IP.IPv4Config do
++  # Boot-time experiment: extra udhcpc args chosen at compile time, e.g.
++  # BOOT_UDHCPC_T=1 retries a lost DHCP discover after 1 s instead of 3 s.
++  @udhcpc_extra_args (case System.get_env("BOOT_UDHCPC_T") do
++                        nil -> []
++                        t -> ["-T", t]
++                      end)
+   @moduledoc """
+   This is a helper module for VintageNet.Technology implementations that use
+   IPv4.
+@@ -204,7 +210,7 @@
+                    "hostname:#{hostname}",
+                    "-s",
+                    BEAMNotify.bin_path()
+-                 ] ++ request_option_args,
++                 ] ++ @udhcpc_extra_args ++ request_option_args,
+                opts:
+                  Command.add_muon_options(
+                    stderr_to_stdout: true,
