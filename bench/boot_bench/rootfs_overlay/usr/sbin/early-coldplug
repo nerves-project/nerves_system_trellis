@@ -1,0 +1,12 @@
+#!/bin/sh
+# Boot-time experiment (Frank's idea): load kernel drivers for devices that
+# are already present before the BEAM starts, in the background, so driver I/O
+# overlaps BEAM startup. nerves_uevent still does the full coldplug later;
+# by then these modules are already loaded. USB devices enumerate a little
+# after this runs, so scan again a second later.
+(
+  modprobe -a -q $(cat /sys/bus/*/devices/*/modalias 2>/dev/null) 2>/dev/null
+  sleep 1
+  modprobe -a -q $(cat /sys/bus/*/devices/*/modalias 2>/dev/null) 2>/dev/null
+) &
+exit 0
