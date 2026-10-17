@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NSK Boot-Time Research</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,7 +41,10 @@
   --boot: #7f8fb3; --kernel: #6f8fd0; --beam: #c9a45c; --apps: #3fbf8f;
   color-scheme: dark;
 }
+html { -webkit-text-size-adjust: 100%; }
+* { box-sizing: border-box; }
 body {
+  margin: 0;
   background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 40px 64px;
@@ -108,6 +116,8 @@ pre { margin: 0; background: var(--surface); border: 1px solid var(--rule); bord
 hr { border: none; border-top: 1px solid var(--rule); margin: 0; }
 footer { color: var(--muted); font-size: 13px; }
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <header>
@@ -258,3 +268,5 @@ less bench/README.md          # commands to reproduce every number</pre>
   });
 })();
 </script>
+</body>
+</html>
