@@ -1,0 +1,12 @@
+# Built firmware and build logs (too large / reproducible); Jon has the
+# firmware images from the measurement runs if anyone needs them.
+results/*.fw
+results/build-*.log
+results/depscompile-*.log
+# Mix build outputs
+boot_bench/_build/
+boot_bench/deps/
+boot_tools/_build/
+boot_tools/deps/
+# Created by livebook/setup.sh
+nerves_livebook/

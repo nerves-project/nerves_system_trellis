@@ -1,0 +1,11 @@
+IO.puts(File.read!("/proc/meminfo") |> String.split("\n") |> Enum.take(5) |> Enum.join(" | "))
+mods = :code.all_loaded() |> Enum.filter(fn {_, f} -> is_list(f) and f != [] end)
+files = Enum.map(mods, &elem(&1, 1))
+t = fn name, f -> {us, _} = :timer.tc(f); IO.puts("#{name}: #{div(us,1000)} ms for #{length(files)} files") end
+t.("prim_loader.get_file", fn -> Enum.each(files, &:erl_prim_loader.get_file/1) end)
+t.("File.read", fn -> Enum.each(files, &File.read!/1) end)
+t.(":prim_file.read_file", fn -> Enum.each(files, &:prim_file.read_file/1) end)
+t.("File.stat only", fn -> Enum.each(files, &File.stat!/1) end)
+{us, _} = :timer.tc(fn -> System.cmd("sh", ["-c", "cat " <> Enum.join(Enum.take(files, 3000), " ") <> " > /dev/null"]) end)
+IO.puts("cat: #{div(us,1000)} ms")
+IO.inspect(:erlang.process_info(Process.whereis(:erl_prim_loader), [:message_queue_len, :memory]))
