@@ -5,7 +5,7 @@
 # Usage: write_uboot.sh path/to/u-boot-sunxi-with-spl.bin
 set -e
 HOST=${BENCH_HOST:-$(dscacheutil -q host -a name nerves-0123b817bd12a177ee.local | awk '/ip_address/{print $2; exit}')}
-OPTS="-i $HOME/.ssh/id_claude -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
+OPTS="-i ${BENCH_KEY:-$HOME/.ssh/id_claude} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
 SIZE=$(stat -f %z "$1")
 # scp (SFTP mode) exits non-zero against nerves_ssh even when the copy works;
 # the size check below is what matters.

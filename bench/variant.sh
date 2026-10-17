@@ -10,7 +10,7 @@ PY=${BENCH_PY:-python3}  # needs pyserial
 # Resolve the board over mDNS (WiFi, or usb0 when that's the only link)
 HOST=${BENCH_HOST:-$(dscacheutil -q host -a name nerves-0123b817bd12a177ee.local | awk '/ip_address/{print $2; exit}')}
 [ -n "$HOST" ] || { echo "can't resolve the board's address"; exit 1; }
-SSH="ssh -i $HOME/.ssh/id_claude -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
+SSH="ssh -i ${BENCH_KEY:-$HOME/.ssh/id_claude} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
 APP=${BENCH_APP:-boot_bench}
 cd "$HERE/$APP"
 FW=_build/trellis_prod/nerves/images/$APP.fw
