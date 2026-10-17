@@ -1,0 +1,81 @@
+From: Claude <noreply@anthropic.com>
+Subject: [PATCH] Save the next boot RNG seed while Erlang starts
+
+Writing and fsyncing the new seed delayed launching the BEAM by ~75 ms on
+slow storage. Load and credit the saved seed as before, but write the next
+boot seed from a forked process right before exec-ing erlexec.
+---
+--- a/src/erlinit.h
++++ b/src/erlinit.h
+@@ -151,6 +151,7 @@
+ 
+ // seedrng
+ int seedrng(void);
++int seedrng_ex(bool load, bool save);
+ 
+ // Utility functions
+ void trim_whitespace(char *s);
+--- a/src/seedrng.c
++++ b/src/seedrng.c
+@@ -426,7 +426,7 @@
+ 			!strcasecmp(skip, "yes") || !strcasecmp(skip, "y"));
+ }
+ 
+-int seedrng(void)
++int seedrng_ex(bool load, bool save)
+ {
+ 	static const char seedrng_prefix[] = "SeedRNG v1 Old+New Prefix";
+ 	static const char seedrng_failure[] = "SeedRNG v1 No New Seed Failure";
+@@ -458,11 +458,14 @@
+ 		goto out;
+ 	}
+ 
+-	if (seed_from_file_if_exists(NON_CREDITABLE_SEED, dfd, false, &hash) < 0)
++	if (load && seed_from_file_if_exists(NON_CREDITABLE_SEED, dfd, false, &hash) < 0)
+ 		program_ret |= 1 << 1;
+-	if (seed_from_file_if_exists(CREDITABLE_SEED, dfd, !skip_credit(), &hash) < 0)
++	if (load && seed_from_file_if_exists(CREDITABLE_SEED, dfd, !skip_credit(), &hash) < 0)
+ 		program_ret |= 1 << 2;
+ 
++	if (!save)
++		goto out;
++
+ 	new_seed_len = determine_optimal_seed_len();
+ 	if (read_new_seed(new_seed, new_seed_len, &new_seed_creditable) < 0) {
+ 		elog(ELOG_WARNING, "Unable to read new seed");
+@@ -496,4 +499,9 @@
+ 	if (dfd >= 0)
+ 		close(dfd);
+ 	return program_ret;
++}
++
++int seedrng(void)
++{
++	return seedrng_ex(true, true);
+ }
+--- a/src/erlinit.c
++++ b/src/erlinit.c
+@@ -717,7 +717,9 @@
+     //
+     // It's not uncommon for pre_run_exec to be used to start hardware entropy
+     // daemons to help with random number generation too.
+-    seedrng();
++    // Only load and credit the saved seed here. Writing the next boot's seed
++    // (an fsync to storage) happens in parallel with Erlang starting up.
++    seedrng_ex(true, false);
+ 
+     // Optionally run a "pre-run" program
+     if (options.pre_run_exec)
+@@ -817,6 +819,12 @@
+     elog(ELOG_INFO | ELOG_PMSG, "Launching erl...");
+     if (options.print_timing)
+         elog(ELOG_INFO, "stop");
++
++    // Save the seed for the next boot while Erlang starts (see above)
++    if (fork() == 0) {
++        seedrng_ex(false, true);
++        _exit(0);
++    }
+ 
+     execvp(exec_path, exec_argv);
+ 

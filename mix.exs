@@ -128,6 +128,7 @@ defmodule NervesSystemTrellis.MixProject do
     [
       "fwup_include",
       "linux",
+      "patches",
       "rootfs_overlay",
       "uboot",
       "busybox.fragment",
