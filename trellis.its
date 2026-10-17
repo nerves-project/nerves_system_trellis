@@ -19,7 +19,7 @@
             entry = <0x40040000>;
 
             hash {
-                algo = "sha256";
+                algo = "crc32";
             };
         };
 
@@ -32,7 +32,7 @@
             load = <0x41800000>;
 
             hash {
-                algo = "sha256";
+                algo = "crc32";
             };
         };
 
@@ -45,7 +45,7 @@
             load = <0x41800000>;
 
             hash {
-                algo = "sha256";
+                algo = "crc32";
             };
         };
 
@@ -58,7 +58,7 @@
             load = <0x41800000>;
 
             hash {
-                algo = "sha256";
+                algo = "crc32";
             };
         };
     };
