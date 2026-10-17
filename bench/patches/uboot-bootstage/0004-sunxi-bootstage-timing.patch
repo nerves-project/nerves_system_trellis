@@ -1,0 +1,48 @@
+Subject: [PATCH] sunxi: boot timing via the ARM generic counter (diagnostic)
+
+Implements timer_get_boot_us() from CNTPCT (24 MHz, runs from reset) and
+marks DRAM init so bootstage reports can split BootROM, SPL DRAM init and
+U-Boot load time.
+
+
+--- a/arch/arm/mach-sunxi/board.c
++++ b/arch/arm/mach-sunxi/board.c
+@@ -547,3 +547,18 @@
+ 	dcache_enable();
+ }
+ #endif
++
++#if CONFIG_IS_ENABLED(BOOTSTAGE) && !defined(CONFIG_SYS_ARCH_TIMER)
++#include <div64.h>
++/*
++ * Boot timing: the ARM generic counter runs at 24 MHz from reset, so this
++ * gives microseconds since reset for bootstage reports.
++ */
++ulong timer_get_boot_us(void)
++{
++	u64 cnt;
++
++	asm volatile("mrrc p15, 0, %Q0, %R0, c14" : "=r" (cnt));
++	return (ulong)lldiv(cnt, 24);
++}
++#endif
+--- a/board/sunxi/board.c
++++ b/board/sunxi/board.c
+@@ -17,6 +17,7 @@
+ #include <i2c.h>
+ #include <image.h>
+ #include <init.h>
++#include <bootstage.h>
+ #include <log.h>
+ #include <mmc.h>
+ #include <axp_pmic.h>
+@@ -638,7 +639,9 @@
+ #endif
+ #endif	/* CONFIG_AXPxxx_POWER */
+ 	printf("DRAM:");
++	bootstage_mark_name(BOOTSTAGE_ID_ALLOC, "dram_init");
+ 	gd->ram_size = sunxi_dram_init();
++	bootstage_mark_name(BOOTSTAGE_ID_ALLOC, "dram_done");
+ 	printf(" %d MiB\n", (int)(gd->ram_size >> 20));
+ 	if (!gd->ram_size)
+ 		hang();
