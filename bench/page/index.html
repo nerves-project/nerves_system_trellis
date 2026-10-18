@@ -131,6 +131,7 @@ footer { color: var(--muted); font-size: 13px; }
     <h2 id="h-headline">Time to IEx prompt</h2>
     <div class="legend"><span class="key"><span class="sw" style="background:var(--before)"></span>before</span><span class="key"><span class="sw" style="background:var(--after)"></span>after</span><span>kernel uptime, median of 5 soft reboots</span></div>
     <div class="bars" id="bars"></div>
+    <p style="color:var(--muted)">The "after" prompt times print the MOTD asynchronously. With the stock synchronous MOTD the prompt appears ~0.35 s later on the template app; the time until all apps have started is the same either way.</p>
   </section>
 
   <section aria-labelledby="h-timeline">
@@ -156,7 +157,7 @@ footer { color: var(--muted); font-size: 13px; }
           <tr><td><b>Profile-guided background preload</b><br>Record the modules loaded by <code>iex.exs</code> time; at boot, load them with <code>code:ensure_modules_loaded/1</code> in chunks of 256 on the idle second core.</td><td class="num">−4.0 s<br><span style="color:var(--muted);font-weight:400">−0.8 s small app</span></td><td>Nerves 2 build action</td><td><code>bench/boot_tools/</code></td><td><span class="pill adopt">adopt</span></td></tr>
           <tr><td><b>WiFi: retry the lost first DHCP DISCOVER sooner</b><br>udhcpc starts on association; its first DISCOVER goes out before the WPA handshake completes and is lost; busybox retries 3 s later.</td><td class="num">−2.1 s</td><td>VintageNet</td><td><code>bench/patches/vintage_net-*</code></td><td><span class="pill">question</span></td></tr>
           <tr><td><b>WiFi: scan the known channel first</b><br>A full scan takes ~2 s before the first auth attempt. A fixed <code>scan_freq</code> is fragile; last-known channel first, then a full scan, is the real fix.</td><td class="num">−2.0 s</td><td>VintageNetWiFi</td><td><code>bench/patches/vintage_net_wifi-*</code></td><td><span class="pill">question</span></td></tr>
-          <tr><td><b>Print the MOTD asynchronously</b> in <code>iex.exs</code></td><td class="num">−0.4 s</td><td>template, nerves_motd</td><td><code>bench/boot_bench/rootfs_overlay/etc/iex.exs</code></td><td><span class="pill adopt">adopt</span></td></tr>
+          <tr><td><b>Print the MOTD asynchronously</b> in <code>iex.exs</code><br>Cosmetic: console output does not delay app start (<code>apps_k</code> is the same with sync, async or no MOTD); only the prompt moves.</td><td class="num">−0.4 s<br><span style="color:var(--muted);font-weight:400">prompt only</span></td><td>template, nerves_motd</td><td><code>bench/boot_bench/rootfs_overlay/etc/iex.exs</code></td><td><span class="pill">not adopted</span></td></tr>
           <tr><td><b>Keep <code>runtime.exs</code> trivial</b> (evaluating it loads Elixir's evaluator and compiler)</td><td class="num">−0.16 s<br><span style="color:var(--muted);font-weight:400">1.4 s step on Livebook</span></td><td>any app</td><td><code>bench/boot_bench</code> (<code>BOOT_NO_RUNTIME_CONFIG</code>)</td><td><span class="pill adopt">adopt</span></td></tr>
           <tr><td><b>Kernel: drop built-in <code>CRYPTO_ECDH</code></b>, which pulled in a 230 ms jitterentropy self-test</td><td class="num">−0.2 s</td><td>Trellis (check others with <code>initcall_debug</code>)</td><td><code>linux/linux_defconfig</code></td><td><span class="pill adopt">adopt</span></td></tr>
           <tr><td><b>crc32 FIT hashes</b> instead of sha256</td><td class="num">−0.22 s</td><td>Trellis</td><td><code>trellis.its</code></td><td><span class="pill signoff">needs sign-off</span></td></tr>
@@ -198,7 +199,7 @@ footer { color: var(--muted); font-size: 13px; }
     <h2 id="h-questions">Questions for Frank</h2>
     <ul class="plain">
       <li>Should Nerves 2 offer the boot tracer and profile-guided preload as build actions?</li>
-      <li>Should the <code>mix nerves.new</code> template use interactive mode and an async MOTD?</li>
+      <li>Should the <code>mix nerves.new</code> template use interactive mode?</li>
       <li>Is crc32 for FIT hashes acceptable for Trellis, and does the erlinit seed change fit seedrng's intent? (If power is lost before the new seed is written, the next boot has no creditable seed.)</li>
       <li>How would you want the DHCP and scan fixes done in VintageNet?</li>
     </ul>

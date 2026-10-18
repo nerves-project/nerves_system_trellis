@@ -26,6 +26,8 @@ Build-time switches (environment variables):
 | --- | --- |
 | `BOOT_TRACE=0` | don't instrument the boot script (default on) |
 | `BOOT_PRELOAD=<file>` | background-preload the listed modules (one per line) with `code:ensure_modules_loaded/1` |
+| `BOOT_PRELOAD=all` | same, but with every module the boot script lists (compile-time set, no profile) |
+| `BOOT_PRELOAD=reach[:depth]` | same, with modules reachable from each started app's callback module via .beam atom tables (compile-time set) |
 | `BOOT_PRELOAD_CHUNK=256` | preload chunk size (default 256; best on Livebook and boot_bench) |
 | `BOOT_DEFER=app1,app2` | start these apps (and dependents) in the background after the boot script |
 | `BOOT_DEFER_PRIO=low` | priority of the deferred starter |

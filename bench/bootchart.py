@@ -43,7 +43,20 @@ def build_segments(rec, rep):
         segs.append(("Linux kernel", 0.0, m["init_k"], "kernel"))
         if m.get("beam_k"):
             segs.append(("erlinit", m["init_k"], m["beam_k"], "kernel"))
-    marks = rep.get("marks", [])
+    all_marks = rep.get("marks", [])
+    # Marks from other processes (background preload, deferred starts) are
+    # drawn on their own lane; boot-step durations use the boot process's
+    # marks only, so a step's bar is the time until the boot script's next step.
+    side = [x for x in all_marks if re.match(r"(:preload|\{:preload|\{:deferred_start|:deferred_done)", x["label"])]
+    marks = [x for x in all_marks if x not in side]
+    pre_start = next((x["t"] for x in side if x["label"] == ":preload_start"), None)
+    if pre_start is not None:
+        t = pre_start
+        for x in side:
+            if x["label"].startswith("{:preload_chunk_done"):
+                n = re.search(r"(\d+)\}$", x["label"])
+                segs.append((f"preload chunk ({n.group(1) if n else '?'} mods)", t, x["t"], "load"))
+                t = x["t"]
     if marks and m.get("beam_k"):
         segs.append(("BEAM start → boot script", m["beam_k"], marks[0]["t"], "misc"))
     agg = {}

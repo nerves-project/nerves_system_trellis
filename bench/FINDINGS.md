@@ -35,6 +35,10 @@ needed.
 | `mix nerves.new` app (39 apps), uptime | 5.90 s | **3.89 s** | −2.0 s |
 | `mix nerves.new` app, U-Boot banner → IEx | 7.43 s | **4.74 s** | −2.7 s |
 
+The "after" prompt times print the MOTD asynchronously, which only moves the
+prompt: with the stock synchronous MOTD the template app's prompt is ~0.35 s
+later (all apps started at 3.84 s either way).
+
 Final configuration (all kept changes together), 5 boots: template app IEx
 3.89 s (3.87–3.90), usb0 IPv4 4.31 s; Livebook IEx 6.82 s (6.36–6.91,
 best run 6.60 s), usb0 IPv4 6.06 s. Livebook varies ±0.3 s run to run, so
@@ -60,9 +64,13 @@ WiFi IPv4 23.2 → 13.2 s). No changes to Livebook's own code.
    the boot script (it waits for `code_server`). Uses the otherwise idle second
    core. Livebook 11.9 → 6.6 s; small app 5.9 → 4.1 s together with (3).
    Profiles must be captured before any ssh/eval session, or they pick up
-   evaluator modules.
-3. **Print the MOTD asynchronously** in `iex.exs`. The synchronous
-   `NervesMOTD.print()` costs ~0.4 s before the prompt.
+   evaluator modules. A compile-time set doesn't replace the profile: modules
+   reachable from app callbacks (2 hops, 386 modules) cut IEx by 0.44 s vs
+   1.70 s for the profile, and preloading every module is no better than no
+   preload (table in EXPERIMENTS.md, "Frank's review, round 2").
+3. ~~Print the MOTD asynchronously~~ (cosmetic, not adopted). Console output
+   does not delay app start (`apps_k` is the same with sync, async or no
+   MOTD); the synchronous `NervesMOTD.print()` only delays the prompt ~0.4 s.
 4. **Keep `runtime.exs` trivial.** Evaluating it loads Elixir's evaluator and
    compiler: 0.16 s on the small app, 1.4 s on Livebook.
 5. **Kernel: look for built-in self-tests.** `CONFIG_CRYPTO_ECDH=y` pulled in

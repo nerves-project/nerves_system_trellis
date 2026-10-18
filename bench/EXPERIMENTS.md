@@ -370,6 +370,47 @@ gets most of the benefit of the "known layout" idea. In embedded mode the cost
 is `prepare_loading` (CPU), not lookups. For apps like Livebook built with
 `-mode embedded`, simply switching to interactive is probably worth seconds.
 
+### Frank's review, round 2 (2026-10-18)
+
+**What `:preload_start` is doing (preload-chunks run, per-chunk marks).**
+`boot_preload` starts at 1.068 s and first waits 397 ms for `code_server`
+(started inside the kernel app). Chunk 1 (256 modules) then takes 886 ms and
+chunk 2 (97) 196 ms; preload is done at 2.548 s. `ensure_modules_loaded`
+spawns one process per module, so during chunk 1 the boot process itself is
+starved on 2 cores: its kernel → next step took 945 ms. In effect the preload
+front-loads ~350 modules in parallel. The bootchart now draws preload chunks
+in their own lane, and boot-step durations only use the boot process's marks.
+
+**Order of the list.** The preload list is not in load order: the profile
+(`.mods`) is alphabetical, and the boot script's list is grouped by
+application start order and alphabetical within each app. Comments fixed.
+
+**A compile-time module set (no profile).** Same build
+(`BOOT_NO_RUNTIME_CONFIG=1 BOOT_FIRST_DROP=…`, sync MOTD), 5 boots each:
+
+| label | preload set | modules | apps_k | iex_k |
+| --- | --- | --- | --- | --- |
+| bb-nopreload | none | 0 | 5.248 | 5.909 |
+| preload-chunks (3) | profile (`boot_bench-v4.mods`) | 350 | **3.845** | **4.207** |
+| bb-preload-all | every module in the boot script | 1,028 | 5.549 | 5.924 |
+| bb-reach-2 | reachable from app callback modules, 2 hops | 386 | 5.037 | 5.466 |
+| bb-reach | reachable, all hops | 767 | 6.054 | 6.298 |
+
+Reachability follows module names in each `.beam`'s atom table from each
+started app's `mod` callback, limited to modules in the boot script
+(`BOOT_PRELOAD=reach[:depth]`). Depth 2 covers 222 of the profile's 350
+modules plus 164 that aren't used at boot; depth ≥4 covers ~305 but drags in
+~450 extras. Extra loads compete with the boot process for the 2 cores, so
+the best compile-time set (depth 2) gets only ~25% of the profile's IEx gain
+(−0.44 s vs −1.70 s) and loading everything is a wash or worse. The profile
+wins because it is both small and nearly all used.
+
+**Console coupling (async MOTD).** `apps_k` is the same with sync MOTD
+(best 4.098 s), async (4.114 s) and no MOTD (4.122 s): printing to the
+console does not delay app start. The MOTD only delays the prompt (gathering
+its info plus ~1.5 KB at 115200 baud). Async MOTD is cosmetic; dropped from
+"adopt".
+
 ## Ideas queue (ranked by expected gain on boot-to-IEx)
 
 1. Interactive code loading instead of embedded preload (`-mode interactive`).

@@ -1,6 +1,8 @@
 %% Profile-guided background preload for interactive mode: load the modules
-%% a previous boot used, in parallel and in boot order, while the boot script
-%% starts applications on the other core.
+%% a previous boot used (the list is grouped by application in the boot
+%% script's start order, alphabetical within each application; it is not the
+%% order modules were actually loaded), in parallel chunks, while the boot
+%% script starts applications.
 -module(boot_preload).
 -export([start/2]).
 
@@ -8,7 +10,11 @@ start(Mods, ChunkSize) ->
     _ = spawn(fun() ->
                       wait_for(code_server),
                       catch boot_trace:mark(preload_start),
-                      Res = [catch code:ensure_modules_loaded(C) || C <- chunks(Mods, ChunkSize)],
+                      Res = [begin
+                                 R = (catch code:ensure_modules_loaded(C)),
+                                 catch boot_trace:mark({preload_chunk_done, length(C)}),
+                                 R
+                             end || C <- chunks(Mods, ChunkSize)],
                       case [R || R <- Res, R =/= ok] of
                           [] -> ok;
                           [E | _] -> catch boot_trace:mark({preload_error, length(Res), E})
