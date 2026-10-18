@@ -405,6 +405,25 @@ the best compile-time set (depth 2) gets only ~25% of the profile's IEx gain
 (−0.44 s vs −1.70 s) and loading everything is a wash or worse. The profile
 wins because it is both small and nearly all used.
 
+**Does the preload order matter?** Recorded the real first-load order on a
+no-preload boot (`boot_load_order` in the report: `erlang:loaded/0`
+reversed; stable across 3 boots, mean rank change < 1), then preloaded the
+same 356 modules in different orders (5 boots each, chunks of 256 unless noted):
+
+| label | order | apps_k | iex_k |
+| --- | --- | --- | --- |
+| bb-order-rec (3) | no preload | 5.338 | 5.979 |
+| ord-app | grouped by app start order, alphabetical within app (the default) | 3.846 | 4.279 |
+| ord-load | recorded first-load order (`BOOT_PRELOAD_ORDER=file`) | 3.848 | 4.291 |
+| ord-alpha | alphabetical | 3.845 | 4.326 |
+| ord-rev | first-load order reversed (control) | 3.866 | 4.275 |
+| ord-load-c64 | first-load order, chunks of 64 | 3.879 | 4.373 |
+
+All within noise (±0.05 s), even reversed. The order doesn't matter on this
+app: the preload finishes (~2.5 s) long before the boot script reaches most
+of the modules, so what counts is which modules are in the set, not their
+order. Smaller chunks are slightly worse, as before.
+
 **Console coupling (async MOTD).** `apps_k` is the same with sync MOTD
 (best 4.098 s), async (4.114 s) and no MOTD (4.122 s): printing to the
 console does not delay app start. The MOTD only delays the prompt (gathering

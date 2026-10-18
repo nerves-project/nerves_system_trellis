@@ -40,6 +40,16 @@ defmodule BootTools.Preload do
     in_apps = MapSet.new(mods)
     extra = wanted |> Enum.reject(&MapSet.member?(in_apps, &1)) |> Enum.filter(&consolidated?(&1, release))
     mods = mods ++ extra
+
+    # BOOT_PRELOAD_ORDER=file keeps the list file's order (e.g. a recorded
+    # first-load order) instead of grouping by application start order.
+    mods =
+      if System.get_env("BOOT_PRELOAD_ORDER") == "file" and File.exists?(list_file) do
+        keep = MapSet.new(mods)
+        list_file |> File.read!() |> String.split() |> Enum.map(&String.to_atom/1) |> Enum.filter(&MapSet.member?(keep, &1)) |> Enum.uniq()
+      else
+        mods
+      end
     Mix.shell().info("* preload #{length(mods)} modules in chunks of #{chunk}")
 
     {a, b} = Enum.split_while(instrs, &(&1 != {:progress, :kernel_load_completed}))

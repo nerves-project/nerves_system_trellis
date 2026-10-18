@@ -67,7 +67,9 @@ WiFi IPv4 23.2 → 13.2 s). No changes to Livebook's own code.
    evaluator modules. A compile-time set doesn't replace the profile: modules
    reachable from app callbacks (2 hops, 386 modules) cut IEx by 0.44 s vs
    1.70 s for the profile, and preloading every module is no better than no
-   preload (table in EXPERIMENTS.md, "Frank's review, round 2").
+   preload (table in EXPERIMENTS.md, "Frank's review, round 2"). Order
+   within the set doesn't matter: the recorded first-load order, app order,
+   alphabetical and even reversed first-load order all give the same result.
 3. ~~Print the MOTD asynchronously~~ (cosmetic, not adopted). Console output
    does not delay app start (`apps_k` is the same with sync, async or no
    MOTD); the synchronous `NervesMOTD.print()` only delays the prompt ~0.4 s.

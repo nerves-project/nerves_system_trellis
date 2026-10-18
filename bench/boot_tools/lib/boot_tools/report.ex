@@ -89,6 +89,13 @@ defmodule BootTools.Report do
           do: :boot_trace.snapshot() |> Enum.reject(&(:code.which(&1) == :preloaded)) |> Enum.map(&Atom.to_string/1) |> Enum.sort(),
           else: []
         ),
+      # erlang:loaded/0 lists modules newest first, so reversed it's the
+      # order of first load.
+      boot_load_order:
+        if(Code.ensure_loaded?(:boot_trace) and function_exported?(:boot_trace, :snapshot, 0),
+          do: :boot_trace.snapshot() |> Enum.reverse() |> Enum.reject(&(:code.which(&1) == :preloaded)) |> Enum.map(&Atom.to_string/1),
+          else: []
+        ),
       apps: length(Application.started_applications()),
       started_apps: Application.started_applications() |> Enum.map(&Atom.to_string(elem(&1, 0))) |> Enum.sort(),
       ring_logger: Process.whereis(RingLogger.Server) != nil
