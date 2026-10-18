@@ -171,6 +171,26 @@ footer { color: var(--muted); font-size: 13px; }
     <p class="meta">Gains are for the change alone, measured against the previous best on the same firmware. Livebook varies ±0.3 s run to run; the small app ±0.05 s.</p>
   </section>
 
+  <section aria-labelledby="h-preload">
+    <h2 id="h-preload">Preload: which modules matters, their order doesn't</h2>
+    <p>Template app, same build, 5 boots each, medians. The profile is the module set recorded at <code>iex.exs</code> time on a previous boot.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>What's preloaded</th><th>Modules</th><th>Apps started</th><th>IEx</th></tr></thead>
+        <tbody>
+          <tr><td>Nothing</td><td class="num">0</td><td class="num">5.34 s</td><td class="num">5.98 s</td></tr>
+          <tr><td><b>Recorded profile, by app start order</b> (default)</td><td class="num">356</td><td class="num"><b>3.85 s</b></td><td class="num"><b>4.28 s</b></td></tr>
+          <tr><td>Recorded profile, actual first-load order</td><td class="num">356</td><td class="num">3.85 s</td><td class="num">4.29 s</td></tr>
+          <tr><td>Recorded profile, alphabetical</td><td class="num">356</td><td class="num">3.85 s</td><td class="num">4.33 s</td></tr>
+          <tr><td>Recorded profile, first-load order reversed</td><td class="num">356</td><td class="num">3.87 s</td><td class="num">4.28 s</td></tr>
+          <tr><td>Compile time: reachable from app callback modules, 2 hops</td><td class="num">386</td><td class="num">5.04 s</td><td class="num">5.47 s</td></tr>
+          <tr><td>Compile time: every module in the boot script</td><td class="num">1,028</td><td class="num">5.55 s</td><td class="num">5.92 s</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Every order of the profile, even reversed, is within the ±0.05 s run-to-run noise: the preload is done by ~2.5 s, before the boot script needs most of these modules. Compile-time sets help little or not at all, because each unneeded module competes with the boot for the two cores. Details: <code>bench/EXPERIMENTS.md</code>, "Frank's review, round 2".</p>
+  </section>
+
   <section aria-labelledby="h-nohelp" class="two">
     <div>
       <h2 id="h-nohelp">Tried, didn't help</h2>

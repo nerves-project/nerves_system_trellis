@@ -372,7 +372,9 @@ is `prepare_loading` (CPU), not lookups. For apps like Livebook built with
 
 ### Frank's review, round 2 (2026-10-18)
 
-**What `:preload_start` is doing (preload-chunks run, per-chunk marks).**
+#### What `:preload_start` is doing
+
+Preload-chunks run, per-chunk marks.
 `boot_preload` starts at 1.068 s and first waits 397 ms for `code_server`
 (started inside the kernel app). Chunk 1 (256 modules) then takes 886 ms and
 chunk 2 (97) 196 ms; preload is done at 2.548 s. `ensure_modules_loaded`
@@ -381,11 +383,15 @@ starved on 2 cores: its kernel → next step took 945 ms. In effect the preload
 front-loads ~350 modules in parallel. The bootchart now draws preload chunks
 in their own lane, and boot-step durations only use the boot process's marks.
 
-**Order of the list.** The preload list is not in load order: the profile
+#### Order of the list
+
+The preload list is not in load order: the profile
 (`.mods`) is alphabetical, and the boot script's list is grouped by
 application start order and alphabetical within each app. Comments fixed.
 
-**A compile-time module set (no profile).** Same build
+#### A compile-time module set (no profile)
+
+Same build
 (`BOOT_NO_RUNTIME_CONFIG=1 BOOT_FIRST_DROP=…`, sync MOTD), 5 boots each:
 
 | label | preload set | modules | apps_k | iex_k |
@@ -405,7 +411,9 @@ the best compile-time set (depth 2) gets only ~25% of the profile's IEx gain
 (−0.44 s vs −1.70 s) and loading everything is a wash or worse. The profile
 wins because it is both small and nearly all used.
 
-**Does the preload order matter?** Recorded the real first-load order on a
+#### Does the preload order matter? No
+
+Recorded the real first-load order on a
 no-preload boot (`boot_load_order` in the report: `erlang:loaded/0`
 reversed; stable across 3 boots, mean rank change < 1), then preloaded the
 same 356 modules in different orders (5 boots each, chunks of 256 unless noted):
@@ -424,7 +432,9 @@ app: the preload finishes (~2.5 s) long before the boot script reaches most
 of the modules, so what counts is which modules are in the set, not their
 order. Smaller chunks are slightly worse, as before.
 
-**Console coupling (async MOTD).** `apps_k` is the same with sync MOTD
+#### Console coupling (async MOTD)
+
+`apps_k` is the same with sync MOTD
 (best 4.098 s), async (4.114 s) and no MOTD (4.122 s): printing to the
 console does not delay app start. The MOTD only delays the prompt (gathering
 its info plus ~1.5 KB at 115200 baud). Async MOTD is cosmetic; dropped from
