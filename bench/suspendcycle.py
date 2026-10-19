@@ -16,7 +16,8 @@ def cycle(sleep_s):
                         'File.write!("/proc/sys/kernel/printk", "7")', timeout=15)
     s = serial.Serial(bootcap.DEV, 115200, timeout=0.01)
     s.write(b"\r"); time.sleep(0.3); s.reset_input_buffer()
-    s.write(b'r = File.write("/sys/power/state", "mem"); IO.puts("WOKE" <> "UP #{inspect(r)}")\r')
+    pre = os.environ.get("PRE_EXPR", ":ok"); post = os.environ.get("RESUME_EXPR", ":ok")
+    s.write(f'{pre}; r = File.write("/sys/power/state", "mem"); post = ({post}); IO.puts("WOKE" <> "UP #{{inspect(r)}}")\r'.encode())
     t0 = time.monotonic(); lines = []; cur = b""; woke = None; done = None
     def pump():
         nonlocal cur
@@ -30,9 +31,9 @@ def cycle(sleep_s):
     pings = {}
     def pinger(name, ip):
         while time.monotonic() - woke < 30:
-            if subprocess.run(["ping", "-c", "1", "-t", "1", ip], capture_output=True).returncode == 0:
+            if subprocess.run(["ping", "-c", "1", "-W", "150", ip], capture_output=True).returncode == 0:
                 pings[name] = time.monotonic(); return
-    for name, ip in (("wlan0", os.environ.get("WLAN_IP", "10.0.1.52")), ("usb0", "172.31.3.157")):
+    for name, ip in (("wlan0", os.environ.get("WLAN_IP", "10.1.1.52")), ("usb0", "172.31.3.157")):
         threading.Thread(target=pinger, args=(name, ip), daemon=True).start()
     while time.monotonic() - woke < 15:
         pump()

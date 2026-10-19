@@ -584,6 +584,43 @@ takes ~5 s to be usable from the host again. Not measured: power draw while
 suspended (s2idle only idles the CPUs; a deeper state would need firmware
 support for PSCI `SYSTEM_SUSPEND`).
 
+#### Faster networking after a wake
+
+On-device timeline of one wake (`probes/netrec.py` records VintageNet
+events; kernel and wpa_supplicant logs):
+
+| step | takes |
+| --- | --- |
+| rtw88 has no USB suspend/resume callbacks, so the USB core unbinds it before sleep and rebinds it after: wlan0 is removed and recreated | 0.27 s |
+| VintageNet restarts wpa_supplicant for the new wlan0 | 0.37 s |
+| **wpa_supplicant scans every channel** | **2.0 s** |
+| authenticate, associate, WPA handshake | ~0.9 s |
+| DHCP (same lease) | 0.17 s, or +3 s when the first DISCOVER is lost before the handshake completes |
+
+usb0 is back on the board in 0.6 s; the ~5 s the host sees is the host
+re-detecting the gadget and redoing DHCP (the gadget has to disconnect while
+suspended: a connected USB device gets a frame every 1 ms, which would wake
+the board). WoWLAN would keep WiFi associated, but rtw88's 8723D has no
+WoWLAN support.
+
+Two fixes, host pinging wlan0, 5 cycles each (The Llab, 2462 MHz):
+
+| | wake → wlan0 answers |
+| --- | --- |
+| as shipped | 7.15 s (4.8–7.3) |
+| `udhcpc -T 1` (`BOOT_UDHCPC_T=1`) | 4.68 s (4.6–6.0) |
+| `udhcpc -T 1` + scan the last channel first | **3.52 s** (3.50–4.67) |
+
+"Last channel first": before suspending, remember the AP's frequency
+(`current_ap.frequency`); on wake, as soon as the new wpa_supplicant answers,
+`ABORT_SCAN` its full scan and send `SCAN freq=<last>`
+(`VintageNetWiFi.WPASupplicant.raw_command/2`). If the AP isn't there,
+wpa_supplicant's normal full scans follow, so switching locations still
+works. Proper homes: VintageNetWiFi (remember the last frequency, scan it
+first; helps at boot too) and starting udhcpc on `CTRL-EVENT-CONNECTED`.
+Next: suspend/resume callbacks for rtw88's USB driver, so wlan0 and
+wpa_supplicant survive a suspend (saves the ~0.6 s rebind + restart).
+
 ### Resume boot: hibernate once, resume instead of booting (2026-10-19)
 
 Linux hibernation (suspend to disk): save RAM to swap, power off or reboot,

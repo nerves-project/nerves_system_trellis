@@ -118,7 +118,10 @@ Details: EXPERIMENTS.md, "Ideas for Erlang/OTP".
 Works on the standard system (suspend-to-idle; the firmware offers no deeper
 state). Suspend takes **~0.3 s**; after a wake event IEx answers in
 **~0.18 s**. Networking takes longer to come back: wlan0 ~7 s (rejoin +
-DHCP), usb0 ~5 s. Wake source used: the serial console. Script:
+DHCP), usb0 ~5 s. Wake source used: the serial console. WiFi after a wake:
+7.15 → **3.52 s** with `udhcpc -T 1` plus scanning the last channel first
+(the WiFi driver is unbound and rebound across suspend, so wpa_supplicant
+restarts and would otherwise scan every channel). Script:
 `suspendcycle.py`; details: EXPERIMENTS.md, "Suspend and resume".
 
 ## Resume boot (hibernation), measured
