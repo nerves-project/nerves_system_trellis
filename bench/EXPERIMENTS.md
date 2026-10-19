@@ -440,6 +440,119 @@ console does not delay app start. The MOTD only delays the prompt (gathering
 its info plus ~1.5 KB at 115200 baud). Async MOTD is cosmetic; dropped from
 "adopt".
 
+### Ideas for Erlang/OTP (2026-10-18)
+
+What OTP 29.1.2 does today (source read): embedded mode's `primLoad`
+already prepares modules in parallel (`erl_prim_loader:get_modules`, a
+bounded pool of `schedulers + schedulers/2` workers reading files directly),
+but one application's group at a time. `code:ensure_modules_loaded/1` (used
+by our preload) spawns one process per module, and each one asks
+`code_server` for the file and reads it through `erl_prim_loader`.
+`erts_internal:prepare_loading/2` runs to completion on a normal scheduler
+(no yielding, no reductions bumped). Template app unless noted, stock OTP,
+5 boots each, medians.
+
+#### 1. Load all embedded-mode groups in one pass (`BOOT_ELOAD`): a win
+
+`boot_eload` replaces every `primLoad` group after `kernel_load_completed`
+with one call: N workers read files by exact path and prepare them, the boot
+process installs them in batches of 128 and reports them to init like
+`primLoad` does.
+
+| label | app | load phase | apps_k | iex_k |
+| --- | --- | --- | --- | --- |
+| emb-base | template, `-mode embedded` | 4.394 | 7.271 | 7.618 |
+| emb-eload | same, one pass | 4.003 | 6.896 | 7.283 |
+| lb-emb-base | Livebook, `-mode embedded` (3,132 modules) | | | 16.605 |
+| lb-emb-eload | same, one pass | | | **15.175** |
+
+−0.35 s on the template app, **−1.43 s on Livebook** (124 groups). In OTP
+this would be a change to `init` (load consecutive `primLoad` groups
+together, using each group's path) or to `systools` (emit one group). First
+attempt crashed the boot: the boot process traps exits, so linked workers'
+`'EXIT'` messages were taken by init's next `kernelProcess` start as its
+reply ("Could not start kernel pid (application_controller) (normal)");
+monitors fixed it.
+
+#### 2. Bounded preload pool (`BOOT_PRELOAD_POOL`): no win
+
+Pool of N workers reading by exact path (no `code_server`/`erl_prim_loader`
+round trips), preparing before `code_server` starts, installing in batches
+of 32 via `code_server:call({finish_loading, …})`.
+
+| label | preload | apps_k | iex_k |
+| --- | --- | --- | --- |
+| ord-app | `ensure_modules_loaded`, chunks of 256 (current) | **3.846** | **4.279** |
+| pool2 | 2 workers | 4.073 | 4.554 |
+| pool2-low | 2 workers, low priority | 3.916 | 4.454 |
+| pool1 | 1 worker | 4.202 | 4.610 |
+| pool1-low | 1 worker, low priority | 4.113 | 4.522 |
+
+Why: without preload the kernel app starts in 0.47 s; with any preload it
+takes ~0.94 s, because preloading competes with the boot process for the 2
+cores. Low priority barely helps: a single `prepare_loading` holds a
+scheduler for up to 98 ms (`unicode_util`), whatever the priority.
+
+#### 3. `prepare_loading` on a dirty CPU scheduler (OTP patch): no win
+
+Patch in `bench/patches/otp/` (branch `dirty-prepare-loading` in a local
+OTP clone): modules > 16 KB are prepared on a dirty CPU scheduler, like
+`integer_to_list/1` does for big integers. Applied to the system's Erlang:
+
+| preload | stock apps / IEx | patched apps / IEx |
+| --- | --- | --- |
+| none | 5.338 / 5.979 | 5.300 / 6.110 |
+| `ensure_modules_loaded` (current) | **3.846 / 4.279** | 4.070 / 4.519 |
+| pool, 2 workers | 4.073 / 4.554 | 3.878 / 4.366 |
+| pool, 2 workers, low | 3.916 / 4.454 | 3.900 / 4.360 |
+
+It helps the pool but hurts the current preload, and the best result is
+no better. Not worth proposing for boot time. The system was rebuilt with
+stock Erlang afterwards.
+
+#### 4. Concurrent application start (`BOOT_CONCURRENT=1`): faster apps and network, same prompt
+
+Replaces the boot script's sequential `application:start_boot/2` calls
+(after kernel and stdlib) with one `application:ensure_all_started(Apps,
+permanent, concurrent)`.
+
+| label | app | apps_k | iex_k | usb0 IPv4 |
+| --- | --- | --- | --- | --- |
+| ord-app | template | 3.846 | 4.279 | 4.25 |
+| conc | template, concurrent | **3.061** | 4.367 | **3.09** |
+| lb-best | Livebook (interactive + preload) | 6.522 | 6.891 | 6.10 |
+| lb-conc | same, concurrent | 6.598 | 6.969 | 5.98 |
+
+Template app: all apps are up 0.8 s sooner and usb0 gets its address 1.2 s
+sooner, but the prompt doesn't move: `iex.exs` starts at 3.0 s and the
+synchronous MOTD then takes 1.37 s instead of 0.38 s while the apps finish
+their post-start work. Livebook: no change (it's CPU-bound with the
+preload). Worth offering as a boot script option (systools/`mix release`).
+
+#### 5. Mandatory first group: no win alone
+
+systools' `mandatory_modules/0` says only `error_handler` is truly
+mandatory; the rest are "almost always needed". Recorded first-load order:
+`sys.config` parsing loads `erl_scan`, `erl_anno`, `erl_features`,
+`erl_parse` (#38–41); `erl_lint` isn't loaded before IEx and `erl_eval`
+only at #354 of 356.
+
+| label | first group | apps_k | iex_k |
+| --- | --- | --- | --- |
+| first-full | as shipped | 3.877 | 4.255 |
+| first-drop2 | without `erl_lint`, `erl_eval` | 3.853 | 4.287 |
+| ord-app | without `erl_lint`, `erl_eval`, `erl_parse` | 3.846 | 4.279 |
+
+Within noise once the preload runs on the second core.
+
+#### 6. Per-module load cost (`probes/prepcost.exs`)
+
+All 1,093 release beams (12.9 MB) prepare in 3.54 s on one core: ~258 µs
+per KB plus ~0.65 ms per module (517 modules under 4 KB cost 338 ms).
+Literal tables are stored uncompressed (OTP 28+), debug info is stripped
+(0.1%), and removing the `Line` (3.48 s) or `Type`/`Meta` (3.60 s) chunks
+changes nothing. The cost is the loader translating code.
+
 ## Ideas queue (ranked by expected gain on boot-to-IEx)
 
 1. Interactive code loading instead of embedded preload (`-mode interactive`).

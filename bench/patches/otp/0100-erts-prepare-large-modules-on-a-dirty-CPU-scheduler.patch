@@ -1,0 +1,64 @@
+From 6286315bfa3331fe995c6d27618158b2789599c7 Mon Sep 17 00:00:00 2001
+From: Jon Carstens <jjcarstens@me.com>
+Date: Sun, 18 Oct 2026 21:11:25 -0600
+Subject: [PATCH] erts: prepare large modules on a dirty CPU scheduler
+
+erts_internal:prepare_loading/2 does all of its work in one call on a
+normal scheduler: it neither yields nor bumps reductions. On slow CPUs a
+large module takes tens of milliseconds (e.g. ~98 ms for unicode_util on a
+1 GHz Cortex-A7), blocking every other process on that scheduler,
+whatever its priority. This is most visible at boot, when code is
+preloaded in the background while applications start.
+
+Reschedule the BIF on a dirty CPU scheduler for modules larger than
+16 KB, as integer_to_list/1 does for large integers.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ erts/emulator/beam/beam_bif_load.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/erts/emulator/beam/beam_bif_load.c b/erts/emulator/beam/beam_bif_load.c
+index 440a713404..434f4d9307 100644
+--- a/erts/emulator/beam/beam_bif_load.c
++++ b/erts/emulator/beam/beam_bif_load.c
+@@ -228,6 +228,9 @@ erts_internal_beamfile_module_md5_1(BIF_ALIST_1)
+     return res;
+ }
+ 
++/* Modules larger than this are prepared on a dirty CPU scheduler. */
++#define ERTS_PREPARE_LOADING_DIRTY_SIZE (16 * 1024)
++
+ BIF_RETTYPE
+ erts_internal_prepare_loading_2(BIF_ALIST_2)
+ {
+@@ -242,6 +245,26 @@ erts_internal_prepare_loading_2(BIF_ALIST_2)
+         BIF_ERROR(BIF_P, BADARG);
+     }
+ 
++    /* Preparing a large module can keep a normal scheduler busy for tens of
++     * milliseconds on slow CPUs (this BIF neither yields nor bumps
++     * reductions), starving every other process on that scheduler. Do the
++     * work on a dirty CPU scheduler instead. */
++    if (is_bitstring(BIF_ARG_2)
++        && BYTE_SIZE(bitstring_size(BIF_ARG_2)) > ERTS_PREPARE_LOADING_DIRTY_SIZE
++        && erts_get_scheduler_data()->type == ERTS_SCHED_NORMAL) {
++        const ErtsCodeMFA *mfa =
++            &BIF_TRAP_EXPORT(BIF_erts_internal_prepare_loading_2)->info.mfa;
++        return erts_schedule_bif(BIF_P,
++                                 BIF__ARGS,
++                                 BIF_I,
++                                 mfa,
++                                 erts_internal_prepare_loading_2,
++                                 ERTS_SCHED_DIRTY_CPU,
++                                 mfa->module,
++                                 mfa->function,
++                                 2);
++    }
++
+     code = erts_get_aligned_binary_bytes(BIF_ARG_2, &size, &temp_alloc);
+     if (code == NULL) {
+         BIF_ERROR(BIF_P, BADARG);
+-- 
+2.50.1 (Apple Git-155)
+

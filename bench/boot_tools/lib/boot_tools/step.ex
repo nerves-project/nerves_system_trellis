@@ -36,6 +36,15 @@ defmodule BootTools.Step do
       Mix.shell().info("* dropped from the first primLoad group: #{inspect(mods)}")
     end
 
+    if workers = System.get_env("BOOT_ELOAD") do
+      batch = String.to_integer(System.get_env("BOOT_ELOAD_BATCH", "128"))
+      rewrite!(Path.join(rel_dir, "start.boot"), &eload(&1, release, String.to_integer(workers), batch))
+    end
+
+    if System.get_env("BOOT_CONCURRENT") == "1" do
+      rewrite!(Path.join(rel_dir, "start.boot"), &concurrent/1)
+    end
+
     if list = System.get_env("BOOT_PRELOAD") do
       chunk = String.to_integer(System.get_env("BOOT_PRELOAD_CHUNK", "256"))
       rewrite!(Path.join(rel_dir, "start.boot"), &BootTools.Preload.transform(&1, release, list, chunk))
@@ -62,7 +71,7 @@ defmodule BootTools.Step do
     dest_dir = Path.join([release.path, "lib", "boot_trace", "ebin"])
     File.mkdir_p!(dest_dir)
 
-    for m <- [:boot_trace, :boot_bundle, :boot_defer, :boot_preload] do
+    for m <- [:boot_trace, :boot_bundle, :boot_defer, :boot_preload, :boot_eload, :boot_concurrent] do
       {:module, _} = Code.ensure_loaded(m)
       File.cp!(:code.which(m), Path.join(dest_dir, "#{m}.beam"))
     end
@@ -87,6 +96,41 @@ defmodule BootTools.Step do
     pre ++ post
   end
 
+  # Embedded mode: replace every primLoad group after kernel_load_completed
+  # with one boot_eload:load/3 call (exact paths, one parallel pass).
+  defp eload(instrs, release, workers, batch) do
+    {pre, post} = Enum.split_while(instrs, &(&1 != {:kernel_load_completed}))
+    mods = for {:primLoad, ms} <- post, m <- ms, do: m
+    paths = for m <- mods, p = BootTools.Preload.rel_path(m, release), p != nil, do: {m, String.to_charlist(p)}
+    missing = length(mods) - length(paths)
+    if missing > 0, do: Mix.raise("boot_eload: no path for #{missing} modules")
+    Mix.shell().info("* boot_eload: #{length(paths)} modules, #{workers} workers, batches of #{batch}")
+
+    {before, [_first | rest]} = Enum.split_while(post, &(not match?({:primLoad, _}, &1)))
+    rest = Enum.reject(rest, &match?({:primLoad, _}, &1))
+    pre ++ before ++ [{:apply, {:boot_eload, :load, [paths, workers, batch]}}] ++ rest
+  end
+
+  # Replace the sequential application:start_boot/2 calls after kernel and
+  # stdlib with one concurrent start of the same applications.
+  defp concurrent(instrs) do
+    starts = for {:apply, {:application, :start_boot, [app, type]}} <- instrs, app not in [:kernel, :stdlib], do: {app, type}
+    [{_, type} | _] = starts
+    apps = Enum.map(starts, &elem(&1, 0))
+    Mix.shell().info("* concurrent start of #{length(apps)} applications")
+
+    {out, _} =
+      Enum.flat_map_reduce(instrs, false, fn
+        {:apply, {:application, :start_boot, [app, _]}}, done? when app not in [:kernel, :stdlib] ->
+          if done?, do: {[], true}, else: {[{:apply, {:boot_concurrent, :start, [apps, type]}}], true}
+
+        i, done? ->
+          {[i], done?}
+      end)
+
+    out
+  end
+
   defp rewrite!(path, fun) do
     {:script, id, instrs} = path |> File.read!() |> :erlang.binary_to_term()
     File.write!(path, :erlang.term_to_binary({:script, id, fun.(instrs)}))
@@ -107,7 +151,7 @@ defmodule BootTools.Step do
 
     pre ++
       [
-        {:primLoad, [:boot_trace, :boot_defer, :boot_preload | first]},
+        {:primLoad, [:boot_trace, :boot_defer, :boot_preload, :boot_eload | first]},
         {:apply, {:boot_trace, :start, []}},
         {:apply, {:boot_trace, :mark, [{:primLoad, :first, length(first)}]}}
       ] ++ List.flatten(groups) ++ [{:apply, {:boot_trace, :mark, [:script_done]}}]

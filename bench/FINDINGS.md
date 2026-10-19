@@ -95,6 +95,24 @@ WiFi IPv4 23.2 → 13.2 s). No changes to Livebook's own code.
    earlier on the small app (they load lazily later). Boots fine here; test
    per app.
 
+## Ideas for Erlang/OTP (measured)
+
+Details: EXPERIMENTS.md, "Ideas for Erlang/OTP".
+
+- **Load embedded mode's module groups in one pass.** OTP already prepares
+  each application's group in parallel, but one group at a time. Loading
+  them all in one pass (`BOOT_ELOAD`): Livebook 16.61 → 15.18 s to IEx
+  (−1.43 s), template app −0.35 s. Best candidate for an OTP change (`init`
+  or `systools`).
+- **Concurrent application start in the boot script** (`BOOT_CONCURRENT`):
+  template app's apps up 0.8 s sooner and usb0 IPv4 1.2 s sooner; prompt
+  unchanged; no change on Livebook. Candidate as an opt-in boot script
+  option.
+- Not worth proposing: a bounded pool for `code:ensure_modules_loaded/1`,
+  running `prepare_loading` on dirty schedulers (OTP patch built and
+  measured), dropping `erl_lint`/`erl_eval` from the mandatory first group,
+  stripping `Line`/`Type` chunks.
+
 ## Tried, no help
 
 - Exact boot paths (no failed lookups in embedded mode): ~0.07 s. Single-file

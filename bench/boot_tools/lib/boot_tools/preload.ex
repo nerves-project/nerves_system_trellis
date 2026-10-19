@@ -52,8 +52,21 @@ defmodule BootTools.Preload do
       end
     Mix.shell().info("* preload #{length(mods)} modules in chunks of #{chunk}")
 
+    start =
+      case System.get_env("BOOT_PRELOAD_POOL") do
+        nil ->
+          {:boot_preload, :start, [mods, chunk]}
+
+        workers ->
+          paths = for m <- mods, p = rel_path(m, release), p != nil, do: {m, String.to_charlist(p)}
+          batch = String.to_integer(System.get_env("BOOT_PRELOAD_BATCH", "32"))
+          prio = String.to_atom(System.get_env("BOOT_PRELOAD_PRIO", "normal"))
+          Mix.shell().info("* preload pool: #{workers} workers, batches of #{batch}, #{prio} priority")
+          {:boot_preload, :start_pool, [paths, String.to_integer(workers), batch, prio]}
+      end
+
     {a, b} = Enum.split_while(instrs, &(&1 != {:progress, :kernel_load_completed}))
-    a ++ [hd(b), {:apply, {:boot_preload, :start, [mods, chunk]}} | tl(b)]
+    a ++ [hd(b), {:apply, start} | tl(b)]
   end
 
   # Compile-time set: modules reachable from each started application's
@@ -86,6 +99,21 @@ defmodule BootTools.Preload do
       if new == [], do: {:halt, {set, []}}, else: {:cont, {MapSet.union(set, MapSet.new(new)), new}}
     end)
     |> elem(0)
+  end
+
+  # Path of a module's .beam relative to the release root, as the boot
+  # path would find it (consolidated protocols first).
+  def rel_path(m, release) do
+    cons = Path.join(["releases", release.version, "consolidated", "#{m}.beam"])
+
+    if File.exists?(Path.join(release.path, cons)) do
+      cons
+    else
+      Enum.find_value(release.applications, fn {app, props} ->
+        if m in Keyword.get(props, :modules, []),
+          do: Path.join(["lib", "#{app}-#{props[:vsn]}", "ebin", "#{m}.beam"])
+      end)
+    end
   end
 
   defp consolidated?(m, release) do
