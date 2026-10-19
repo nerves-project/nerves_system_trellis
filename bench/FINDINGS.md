@@ -113,6 +113,16 @@ Details: EXPERIMENTS.md, "Ideas for Erlang/OTP".
   measured), dropping `erl_lint`/`erl_eval` from the mandatory first group,
   stripping `Line`/`Type` chunks.
 
+## Resume boot (hibernation), measured
+
+Saving RAM to disk once and resuming instead of booting: U-Boot banner →
+working IEx **4.63 s vs 5.19 s** for a normal boot to the prompt (~1.3 s
+faster against the same "ready" probe). Not recommended yet: only about half
+the resumes happened (the kernel sometimes ignores a valid image, cause
+unknown), a firmware update resumed the old firmware's image, a swap file on
+`/root` corrupted it, and USB gadget Ethernet doesn't come back. Details:
+EXPERIMENTS.md, "Resume boot".
+
 ## Tried, no help
 
 - Exact boot paths (no failed lookups in embedded mode): ~0.07 s. Single-file

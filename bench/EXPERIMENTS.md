@@ -553,6 +553,67 @@ Literal tables are stored uncompressed (OTP 28+), debug info is stripped
 (0.1%), and removing the `Line` (3.48 s) or `Type`/`Meta` (3.60 s) chunks
 changes nothing. The cost is the loader translating code.
 
+### Resume boot: hibernate once, resume instead of booting (2026-10-19)
+
+Linux hibernation (suspend to disk): save RAM to swap, power off or reboot,
+and have the next kernel restore it instead of starting userspace. Kernel
+6.18 already had what it needs (swap, PSCI CPU hotplug, `PM_SLEEP_SMP`);
+added `CONFIG_HIBERNATION`, LZ4 image compression and busybox
+`mkswap`/`swapon`/`swapoff` (`bench/patches/hibernation-system.diff`; reverted
+afterwards, not on this branch). `resume=` goes into U-Boot's
+`console_args`. Tooling: `probes/hib_setup.exs`, `probes/hib_arm*.exs`,
+`hibcycle.py` (timed cycles), `probes/hibtrace.py` (one cycle with the kernel
+log). Times from the U-Boot banner; "ready" = IEx answers an expression typed
+on the console.
+
+| | U-Boot banner → |
+| --- | --- |
+| normal boot, IEx prompt (hib-base, same kernel) | 5.19 s |
+| normal boot, ready (same probe as resumes) | 5.75–6.08 s |
+| **resume, ready** (raw partition, minimal image, 5 resumes) | **4.63 s** (4.36–4.69) |
+| resume, ready (swap file, default image, 5 resumes) | 4.50–4.65 s |
+
+A resume saves ~0.6 s against the normal prompt, ~1.3 s against the same
+"ready" probe. Where it goes (traced resume, 11 MB image):
+
+| step | until | takes |
+| --- | --- | --- |
+| U-Boot, hand-off | 0.56 s | |
+| kernel boots until the eMMC is up and resume starts | ~1.4 s | ~0.85 s |
+| prepare, freeze | | 0.26 s |
+| read 23 MB (11 MB LZ4) at 23 MB/s | | 1.02 s |
+| freeze the boot kernel's devices, jump | | ~0.1 s (+ console output) |
+| restored kernel resumes devices, restarts tasks | ~4.5 s | 0.22 s |
+
+Image size: by default 66 MB (35 MB LZ4; written in 4.4 s); with
+`/sys/power/image_size` = 0 the kernel drops page cache first: 23–25 MB
+(11–12 MB LZ4), resume ~0.1 s faster, saving takes 5 s longer.
+
+Problems found (why this isn't a recommendation yet):
+
+- **Reliability.** Only about half the cycles resumed. The other half the
+  fresh kernel booted normally although a valid `S1SUSPEND` header was on
+  disk; it didn't even try ("resume from hibernation" never logged). Both
+  silent paths (block device open, header read) need dynamic debug to see;
+  unresolved. `pm_debug_messages` only prints during a sleep transition, not
+  at boot.
+- **Firmware updates.** A new firmware's kernel resumed the old firmware's
+  image: U-Boot said slot A, the system ran slot B's rootfs. An update has to
+  invalidate the image (or the image has to carry the firmware UUID).
+- **Filesystems.** A swap file on `/root` (1 KB ext4 blocks) is misaligned:
+  the kernel uses the first aligned page as header, so `mkswap`'s signature
+  had to be written there by hand. Resuming after `/root` changed on disk
+  corrupted it (`e2fsck` repaired it). A dedicated raw partition avoids both;
+  the experiment borrowed the inactive firmware slot.
+- **Devices.** USB gadget Ethernet to the host didn't come back; the serial
+  console was sometimes dead after a resume; WiFi reconnects (rtw88 reloads
+  its firmware). The kernel's in-place `test_resume` mode hung the board
+  (needed a power cycle; the watchdog is stopped during hibernation).
+
+Floor for this board: ~0.85 s of kernel boot before the eMMC is usable plus
+~1 s to read even a minimal image, so a resume can't get much below ~3.5 s
+from the banner, against 5.19 s for today's normal boot.
+
 ## Ideas queue (ranked by expected gain on boot-to-IEx)
 
 1. Interactive code loading instead of embedded preload (`-mode interactive`).

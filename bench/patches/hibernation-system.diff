@@ -1,0 +1,32 @@
+diff --git a/busybox.fragment b/busybox.fragment
+index 174a3f2..452fd83 100644
+--- a/busybox.fragment
++++ b/busybox.fragment
+@@ -1 +1,4 @@
+ CONFIG_DEVMEM=y
++CONFIG_MKSWAP=y
++CONFIG_SWAPON=y
++CONFIG_SWAPOFF=y
+diff --git a/linux/linux_defconfig b/linux/linux_defconfig
+index d50949c..1afef52 100644
+--- a/linux/linux_defconfig
++++ b/linux/linux_defconfig
+@@ -11,6 +11,10 @@ CONFIG_BLK_DEV_INITRD=y
+ CONFIG_EXPERT=y
+ CONFIG_KCMP=y
+ CONFIG_ARCH_SUNXI=y
++CONFIG_HIBERNATION=y
++CONFIG_HIBERNATION_COMP_LZ4=y
++CONFIG_PM_DEBUG=y
++CONFIG_PM_SLEEP_DEBUG=y
+ CONFIG_SMP=y
+ CONFIG_NR_CPUS=2
+ CONFIG_HIGHMEM=y
+@@ -214,6 +218,7 @@ CONFIG_CRYPTO_CCM=y
+ CONFIG_CRYPTO_GCM=y
+ CONFIG_CRYPTO_CMAC=y
+ CONFIG_CRYPTO_SHA256=y
++CONFIG_CRYPTO_LZ4=y
+ CONFIG_CRYPTO_DEV_SUN4I_SS=y
+ CONFIG_CRYPTO_DEV_SUN4I_SS_PRNG=y
+ CONFIG_CRYPTO_DEV_SUN8I_CE=y

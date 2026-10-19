@@ -208,6 +208,12 @@ footer { color: var(--muted); font-size: 13px; }
     <p>Details: <code>bench/EXPERIMENTS.md</code>, "Ideas for Erlang/OTP".</p>
   </section>
 
+  <section aria-labelledby="h-resume">
+    <h2 id="h-resume">Resume boot (hibernation)</h2>
+    <p>Save RAM to disk once, then have the kernel restore it instead of booting: U-Boot banner to a working IEx in <b>4.63 s</b> (4.36–4.69) against <b>5.19 s</b> for today's normal boot to the prompt. Most of a resume is the kernel booting far enough to reach the eMMC (~0.85 s) and reading the image (11 MB LZ4, ~1 s).</p>
+    <p>Not recommended yet: only about half the resumes happened (the kernel sometimes ignores a valid image), a firmware update resumed the old firmware's image, a swap file on <code>/root</code> corrupted it, and USB gadget Ethernet doesn't come back. Details: <code>bench/EXPERIMENTS.md</code>, "Resume boot".</p>
+  </section>
+
   <section aria-labelledby="h-nohelp" class="two">
     <div>
       <h2 id="h-nohelp">Tried, didn't help</h2>

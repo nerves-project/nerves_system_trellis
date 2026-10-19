@@ -19,6 +19,7 @@ work).
 | `boot_bench/` | The `mix nerves.new` template app ported to Nerves 2, with `boot_tools` and build-time switches (`BOOT_MODE`, `BOOT_MOTD`, `BOOT_NO_RUNTIME_CONFIG`, `BOOT_LOAD_ONLY`, `BOOT_ROOTFS`, `BOOT_EARLY_COLDPLUG`, `BOOT_DIAG`, …). |
 | `livebook/` | Patch porting nerves_livebook (commit 7e11b91) to Nerves 2 + this system + `boot_tools`; `livebook/setup.sh` clones and applies it. |
 | `patches/` | VintageNet WiFi experiment knobs (`apply_dep_patches.sh`) and the diagnostic U-Boot bootstage patch. |
+| `hibcycle.py LABEL -n N` | Resume-boot experiment: arm (`probes/hib_arm*.exs`), hibernate with reboot, time the resume on the serial console. Needs the kernel options in `patches/hibernation-system.diff`. |
 | `write_uboot.sh` | Write a `u-boot-sunxi-with-spl.bin` to the board (fwup upgrades never rewrite U-Boot). Backs up the original once. |
 | `diaglog.sh`, `logmap.py` | Fetch a `BOOT_DIAG=1` build's debug log (monotonic timestamps) mapped onto uptime. |
 | `probes/` | One-off on-device probes from the first investigation (module read vs. prepare cost, path-search misses). |
