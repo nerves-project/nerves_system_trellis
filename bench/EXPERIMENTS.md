@@ -621,6 +621,46 @@ first; helps at boot too) and starting udhcpc on `CTRL-EVENT-CONNECTED`.
 Next: suspend/resume callbacks for rtw88's USB driver, so wlan0 and
 wpa_supplicant survive a suspend (saves the ~0.6 s rebind + restart).
 
+#### rtw88 USB suspend/resume callbacks (kernel patch)
+
+`linux/0005_wifi_rtw88_usb_support_system_suspend_and_resume.patch`: without
+WoWLAN, mac80211 already stops the chip before the USB interface suspends and
+restarts it (power on + firmware download) after resume, so the USB driver
+only parks its RX URBs on suspend and resubmits them on resume
+(`reset_resume` too, since the host port loses power). wlan0 and
+wpa_supplicant now survive a suspend; no USB reset of the adapter. Same
+firmware (`udhcpc -T 1`), 5 cycles each:
+
+| | before patch | with patch |
+| --- | --- | --- |
+| suspend entry → asleep | 297 ms | **63 ms** |
+| wake → IEx answers | 184 ms | 451 ms (firmware download now in the resume path) |
+| wake → wlan0 ping | 4.68 s | 4.67 s (min 3.82) |
+| wake → wlan0 ping, + last-channel scan | 3.52 s | **2.35 s** |
+
+All together WiFi is back after a wake in 2.35 s instead of 7.15 s. What's
+left: wpa_supplicant still scans unless told otherwise, and udhcpc's first
+DISCOVER is still lost before the WPA handshake (~1.2 s with `-T 1`);
+starting udhcpc on `CTRL-EVENT-CONNECTED` would remove that. The resume-time
+firmware download (~0.3 s) could move off the resume path only with a
+deferred restart in the driver.
+
+#### Why usb0 takes seconds on the host
+
+Host side of one wake (macOS, polling `ifconfig`; board's OneDHCPD log):
+
+| after wake | |
+| --- | --- |
+| (suspend) | host's `en9` disappears: the gadget disconnects |
+| 1.13 s | `en9` back and active (board resume + USB enumeration) |
+| +0.08 s after usb0 up | host's DHCPDISCOVER, answered at once |
+| +1.0 s | host's DHCPREQUEST (macOS waits ~1 s collecting offers) |
+| 3.38 s | `en9` has its IPv4 address (~2 s after the ACK, most likely macOS's address-conflict ARP probing) |
+| 3.39 s | ping answers |
+
+The board has usb0 up ~0.1 s after waking; the rest is the host's DHCP
+client. A static address on the host's interface skips it.
+
 ### Resume boot: hibernate once, resume instead of booting (2026-10-19)
 
 Linux hibernation (suspend to disk): save RAM to swap, power off or reboot,

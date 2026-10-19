@@ -121,7 +121,11 @@ state). Suspend takes **~0.3 s**; after a wake event IEx answers in
 DHCP), usb0 ~5 s. Wake source used: the serial console. WiFi after a wake:
 7.15 → **3.52 s** with `udhcpc -T 1` plus scanning the last channel first
 (the WiFi driver is unbound and rebound across suspend, so wpa_supplicant
-restarts and would otherwise scan every channel). Script:
+restarts and would otherwise scan every channel), and **2.35 s** with a
+kernel patch adding USB suspend/resume callbacks to rtw88
+(`linux/0005_...`; suspend also drops to 63 ms, resume to IEx grows to
+0.45 s). usb0's seconds are the host's DHCP client (macOS waits for offers,
+then probes for conflicts); the board has usb0 up in ~0.1 s. Script:
 `suspendcycle.py`; details: EXPERIMENTS.md, "Suspend and resume".
 
 ## Resume boot (hibernation), measured

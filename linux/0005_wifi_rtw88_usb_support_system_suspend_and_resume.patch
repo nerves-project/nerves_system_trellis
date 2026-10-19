@@ -1,0 +1,84 @@
+From: Jon Carstens <jjcarstens@me.com>
+Subject: [PATCH] wifi: rtw88: usb: support system suspend and resume
+
+Without suspend callbacks the USB core unbinds the driver before a system
+suspend and binds it again afterwards, so wlan0 disappears and comes back,
+and userspace (wpa_supplicant) has to start over. Without WoWLAN, mac80211
+already stops the chip before the interface is suspended and restarts it
+(power on, firmware download) after resume, so only the RX URBs need to be
+parked and resubmitted. reset_resume uses the same path.
+
+diff -ru a/drivers/net/wireless/realtek/rtw88/rtw8723du.c b/drivers/net/wireless/realtek/rtw88/rtw8723du.c
+--- a/drivers/net/wireless/realtek/rtw88/rtw8723du.c
++++ b/drivers/net/wireless/realtek/rtw88/rtw8723du.c
+@@ -28,6 +28,9 @@
+ 	.id_table = rtw_8723du_id_table,
+ 	.probe = rtw8723du_probe,
+ 	.disconnect = rtw_usb_disconnect,
++	.suspend = rtw_usb_suspend,
++	.resume = rtw_usb_resume,
++	.reset_resume = rtw_usb_resume,
+ };
+ module_usb_driver(rtw_8723du_driver);
+ 
+diff -ru a/drivers/net/wireless/realtek/rtw88/usb.c b/drivers/net/wireless/realtek/rtw88/usb.c
+--- a/drivers/net/wireless/realtek/rtw88/usb.c
++++ b/drivers/net/wireless/realtek/rtw88/usb.c
+@@ -1374,6 +1374,46 @@
+ }
+ EXPORT_SYMBOL(rtw_usb_disconnect);
+ 
++/* Without WoWLAN, mac80211 stops the chip (rtw_core_stop) before the USB
++ * interface is suspended and starts it again (power on + firmware download)
++ * after it resumes. All the USB side has to do is park the RX URBs, so the
++ * device survives a system suspend instead of being unbound and rebound by
++ * the USB core, which removes and recreates the netdev.
++ */
++int rtw_usb_suspend(struct usb_interface *intf, pm_message_t message)
++{
++	struct ieee80211_hw *hw = usb_get_intfdata(intf);
++	struct rtw_dev *rtwdev;
++	struct rtw_usb *rtwusb;
++
++	if (!hw)
++		return 0;
++
++	rtwdev = hw->priv;
++	rtwusb = rtw_get_usb_priv(rtwdev);
++	rtw_usb_cancel_rx_bufs(rtwusb);
++	cancel_work_sync(&rtwusb->rx_urb_work);
++	flush_workqueue(rtwusb->rxwq);
++	flush_workqueue(rtwusb->txwq);
++
++	return 0;
++}
++EXPORT_SYMBOL(rtw_usb_suspend);
++
++/* Also used for reset_resume: the chip is re-initialized by mac80211's
++ * restart in any case, so a reset device needs nothing more.
++ */
++int rtw_usb_resume(struct usb_interface *intf)
++{
++	struct ieee80211_hw *hw = usb_get_intfdata(intf);
++
++	if (hw)
++		rtw_usb_setup_rx(hw->priv);
++
++	return 0;
++}
++EXPORT_SYMBOL(rtw_usb_resume);
++
+ MODULE_AUTHOR("Realtek Corporation");
+ MODULE_DESCRIPTION("Realtek USB 802.11ac wireless driver");
+ MODULE_LICENSE("Dual BSD/GPL");
+diff -ru a/drivers/net/wireless/realtek/rtw88/usb.h b/drivers/net/wireless/realtek/rtw88/usb.h
+--- a/drivers/net/wireless/realtek/rtw88/usb.h
++++ b/drivers/net/wireless/realtek/rtw88/usb.h
+@@ -99,5 +99,7 @@
+ 
+ int rtw_usb_probe(struct usb_interface *intf, const struct usb_device_id *id);
+ void rtw_usb_disconnect(struct usb_interface *intf);
++int rtw_usb_suspend(struct usb_interface *intf, pm_message_t message);
++int rtw_usb_resume(struct usb_interface *intf);
+ 
+ #endif
