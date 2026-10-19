@@ -553,6 +553,37 @@ Literal tables are stored uncompressed (OTP 28+), debug info is stripped
 (0.1%), and removing the `Line` (3.48 s) or `Type`/`Meta` (3.60 s) chunks
 changes nothing. The cost is the loader translating code.
 
+### Suspend and resume (suspend-to-idle), standard system (2026-10-19)
+
+Frank's question: can the board suspend and resume, and how long does each
+take? It can, with no system changes. `/sys/power/mem_sleep` offers only
+`s2idle` (U-Boot's PSCI is v0.1, no `SYSTEM_SUSPEND`), so `mem` and `freeze`
+are both suspend-to-idle: tasks frozen, devices suspended, CPUs idle,
+RAM kept. Wakeup: the serial console (`echo enabled >
+/sys/class/tty/ttyS4/power/wakeup`); the RTC is a wakeup source too, but
+this kernel has no RTC sysfs (`wakealarm`) and busybox has no `rtcwake`.
+`suspendcycle.py`: suspend with `File.write("/sys/power/state", "mem")`,
+sleep 3 s, wake by sending a byte; host and kernel clocks aligned on the
+console's "PM: suspend entry" line. 5 cycles, all woke:
+
+| | median | range |
+| --- | --- | --- |
+| suspend entry → tasks frozen (incl. 12 ms filesystem sync) | 39 ms | 31–42 |
+| suspend entry → last device suspended | **297 ms** | 292–341 |
+| wake byte → tasks restarting | 140 ms | 138–151 |
+| wake byte → "PM: suspend exit" | 169 ms | 159–183 |
+| wake byte → IEx prints its result | **184 ms** | 174–190 |
+| wake byte → usb0 answers ping (1 s ping interval) | ~5.1 s | 5.05–5.07 |
+| wake byte → wlan0 answers ping | 7.1 s | 6.1–8.2 |
+
+Most of the ~0.3 s suspend is WiFi (deauthenticates from the AP) and the
+USB host/gadget controllers. On the way back the CPU side is up in ~0.2 s;
+the network is what takes time: WiFi rejoins and redoes DHCP (the same
+scan + DHCP costs as at boot, see "WiFi" above), and USB gadget Ethernet
+takes ~5 s to be usable from the host again. Not measured: power draw while
+suspended (s2idle only idles the CPUs; a deeper state would need firmware
+support for PSCI `SYSTEM_SUSPEND`).
+
 ### Resume boot: hibernate once, resume instead of booting (2026-10-19)
 
 Linux hibernation (suspend to disk): save RAM to swap, power off or reboot,

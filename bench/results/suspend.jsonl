@@ -1,0 +1,10 @@
+{"freeze_ms": 35.9, "wake_to_restart_ms": 137, "wake_to_exit_ms": 156, "wake_to_iex_ms": 179, "asleep_s": 3.14, "label": "s2idle", "ts": "20261019-080929"}
+{"freeze_ms": 689.6, "wake_to_restart_ms": 131, "wake_to_exit_ms": 163, "wake_to_iex_ms": 176, "asleep_s": 3.15, "label": "s2idle", "ts": "20261019-080935"}
+{"freeze_ms": 646.2, "wake_to_restart_ms": 132, "wake_to_exit_ms": 161, "wake_to_iex_ms": 182, "asleep_s": 3.15, "label": "s2idle", "ts": "20261019-080941"}
+{"freeze_ms": 611.2, "wake_to_restart_ms": 141, "wake_to_exit_ms": 175, "wake_to_iex_ms": 189, "asleep_s": 3.16, "label": "s2idle", "ts": "20261019-080946"}
+{"freeze_ms": 673.3, "wake_to_restart_ms": 138, "wake_to_exit_ms": 171, "wake_to_iex_ms": 192, "asleep_s": 3.15, "label": "s2idle", "ts": "20261019-080952"}
+{"freeze_ms": 39.0, "suspend_ms": 292, "wake_to_restart_ms": 151, "wake_to_exit_ms": 183, "wake_to_iex_ms": 186, "asleep_s": 3.17, "wake_to_ping_usb0_ms": 5058, "wake_to_ping_wlan0_ms": 6127, "label": "s2idle-net", "ts": "20261019-081044"}
+{"freeze_ms": 38.4, "suspend_ms": 297, "wake_to_restart_ms": 140, "wake_to_exit_ms": 167, "wake_to_iex_ms": 190, "asleep_s": 3.16, "wake_to_ping_usb0_ms": 5059, "wake_to_ping_wlan0_ms": 7089, "label": "s2idle-net", "ts": "20261019-081057"}
+{"freeze_ms": 30.6, "suspend_ms": 292, "wake_to_restart_ms": 138, "wake_to_exit_ms": 169, "wake_to_iex_ms": 179, "asleep_s": 3.15, "wake_to_ping_usb0_ms": 5066, "wake_to_ping_wlan0_ms": 8227, "label": "s2idle-net", "ts": "20261019-081111"}
+{"freeze_ms": 40.6, "suspend_ms": 303, "wake_to_restart_ms": 140, "wake_to_exit_ms": 159, "wake_to_iex_ms": 174, "asleep_s": 3.15, "wake_to_ping_usb0_ms": 5052, "wake_to_ping_wlan0_ms": 7089, "label": "s2idle-net", "ts": "20261019-081123"}
+{"freeze_ms": 42.2, "suspend_ms": 341, "wake_to_restart_ms": 145, "wake_to_exit_ms": 178, "wake_to_iex_ms": 184, "asleep_s": 3.16, "wake_to_ping_usb0_ms": 5050, "wake_to_ping_wlan0_ms": 8156, "label": "s2idle-net", "ts": "20261019-081137"}

@@ -208,6 +208,11 @@ footer { color: var(--muted); font-size: 13px; }
     <p>Details: <code>bench/EXPERIMENTS.md</code>, "Ideas for Erlang/OTP".</p>
   </section>
 
+  <section aria-labelledby="h-suspend">
+    <h2 id="h-suspend">Suspend and resume</h2>
+    <p>Works on the standard system (suspend-to-idle; the firmware has no deeper sleep state). Suspending takes <b>~0.3 s</b>; after a wake event (a byte on the serial console) IEx answers in <b>~0.18 s</b>. The network takes longer: WiFi rejoins and redoes DHCP (~7 s), USB gadget Ethernet ~5 s. Details: <code>bench/EXPERIMENTS.md</code>, "Suspend and resume".</p>
+  </section>
+
   <section aria-labelledby="h-resume">
     <h2 id="h-resume">Resume boot (hibernation)</h2>
     <p>Save RAM to disk once, then have the kernel restore it instead of booting: U-Boot banner to a working IEx in <b>4.63 s</b> (4.36–4.69) against <b>5.19 s</b> for today's normal boot to the prompt. Most of a resume is the kernel booting far enough to reach the eMMC (~0.85 s) and reading the image (11 MB LZ4, ~1 s).</p>

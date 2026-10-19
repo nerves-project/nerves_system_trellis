@@ -113,6 +113,14 @@ Details: EXPERIMENTS.md, "Ideas for Erlang/OTP".
   measured), dropping `erl_lint`/`erl_eval` from the mandatory first group,
   stripping `Line`/`Type` chunks.
 
+## Suspend and resume, measured
+
+Works on the standard system (suspend-to-idle; the firmware offers no deeper
+state). Suspend takes **~0.3 s**; after a wake event IEx answers in
+**~0.18 s**. Networking takes longer to come back: wlan0 ~7 s (rejoin +
+DHCP), usb0 ~5 s. Wake source used: the serial console. Script:
+`suspendcycle.py`; details: EXPERIMENTS.md, "Suspend and resume".
+
 ## Resume boot (hibernation), measured
 
 Saving RAM to disk once and resuming instead of booting: U-Boot banner →
