@@ -722,6 +722,30 @@ Floor for this board: ~0.85 s of kernel boot before the eMMC is usable plus
 ~1 s to read even a minimal image, so a resume can't get much below ~3.5 s
 from the banner, against 5.19 s for today's normal boot.
 
+### nerves_ssh 1.3.3 (2026-10-20)
+
+1.3.3 passes a dummy `:pwdfun` when NervesSSH resolves host key
+algorithms through `:ssh_options.handle_options(:server, …)`. Without it,
+OTP (26+) builds a "fake password checker": `crypto:pbkdf2_hmac/5` with
+600,000 iterations of HMAC-SHA256, thrown away. On the T113:
+`handle_options(:server, [])` takes **3,380 ms**, with a `:pwdfun` 1 ms. It
+runs in NervesSSH's `handle_continue` before `:ssh.daemon/2`, on a dirty
+CPU scheduler, so the boot barely notices; the ssh daemon just starts
+~3.4 s later. Template app, same firmware otherwise (`udhcpc -T 1`), 5 boots:
+
+| | nerves_ssh 1.3.2 | 1.3.3 |
+| --- | --- | --- |
+| apps_k | 3.883 | 3.879 |
+| iex_k | 4.309 | 4.263 |
+| ssh_k (host opens TCP/22 over usb0) | 8.203 (7.38–8.77) | **7.128** (7.08–8.51) |
+
+ssh over usb0 is reachable 1.1 s sooner. With 1.3.3 `ssh_k` is limited by
+the host's own DHCP on the gadget link (usb0 has its address on the board at
+4.28 s; see "Why usb0 takes seconds on the host"), so on the board the daemon
+gains more than that. Over WiFi `ssh_k` hides it: wlan0 only gets its address
+at ~8.5 s. The bench app's lock now uses 1.3.3; Livebook's patch still pins
+1.3.2.
+
 ## Ideas queue (ranked by expected gain on boot-to-IEx)
 
 1. Interactive code loading instead of embedded preload (`-mode interactive`).

@@ -113,6 +113,14 @@ Details: EXPERIMENTS.md, "Ideas for Erlang/OTP".
   measured), dropping `erl_lint`/`erl_eval` from the mandatory first group,
   stripping `Line`/`Type` chunks.
 
+## nerves_ssh 1.3.3
+
+Update. 1.3.2 burns 3.4 s of CPU on the T113 at every boot (OTP's
+"fake password checker", `pbkdf2_hmac` with 600,000 iterations) before
+starting the ssh daemon. 1.3.3 skips it: ssh over usb0 is reachable 1.1 s
+sooner (8.20 → 7.13 s uptime, now limited by the host's DHCP); IEx and app
+start are unchanged (it ran on a dirty scheduler, off the boot's path).
+
 ## Suspend and resume, measured
 
 Works on the standard system (suspend-to-idle; the firmware offers no deeper

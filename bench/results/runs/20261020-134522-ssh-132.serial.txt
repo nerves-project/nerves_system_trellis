@@ -1,0 +1,72 @@
+    0.000 
+    0.000 
+    0.000 U-Boot 2025.10 (Aug 23 2026 - 21:00:00 +0000) Allwinner Technology
+    0.000 
+    0.000 CPU:   Allwinner R528 (SUN8I)
+    0.000 Model: Trellis T113-S4
+    0.000 DRAM:  256 MiB
+    0.025 Core:  49 devices, 18 uclasses, devicetree: separate
+    0.046 WDT:   Not starting watchdog@20500a0
+    0.046 MMC:   mmc@4020000: 0
+    0.046 Loading Environment from MMC... Reading from redundant MMC(0)... OK
+    0.092 In:    serial@2501000
+    0.092 Out:   serial@2501000
+    0.112 Err:   serial@2501000
+    0.112 Allwinner mUSB OTG (Peripheral)
+    0.112 Net:   using musb-hdrc, OUT ep1out IN ep1in STATUS ep2in
+    0.112 MAC de:ad:be:ef:00:01
+    0.112 HOST MAC de:ad:be:ef:00:00
+    0.135 RNDIS ready
+    0.135 eth0: usb_ether
+    0.135 Hit any key to stop autoboot:  0 
+    0.156 switch to partitions #0, OK
+    0.156 mmc0 is current device
+    0.156 MMC read: dev # 0, block # 26624, count 1 ... 1 blocks read: OK
+    0.156 Working FDT set to 4a000000
+    0.180 MMC read: dev # 0, block # 26624, count 11159 ... 11159 blocks read: OK
+    0.442 ## Loading kernel (any) from FIT Image at 4a000000 ...
+    0.442    Using 'nerves-starter-kit' configuration
+    0.465    Trying 'kernel' kernel subimage
+    0.465    Verifying Hash Integrity ... crc32+ OK
+    0.509 ## Loading fdt (any) from FIT Image at 4a000000 ...
+    0.509    Using 'nerves-starter-kit' configuration
+    0.509    Trying 'fdt-nerves-starter-kit' fdt subimage
+    0.509    Verifying Hash Integrity ... crc32+ OK
+    0.529    Loading fdt from 0x4a5644e0 to 0x41800000
+    0.529    Booting using the fdt blob at 0x41800000
+    0.529 Working FDT set to 41800000
+    0.529    Loading Kernel Image to 40040000
+    0.549    Loading Device Tree to 4af3e000, end 4af45a80 ... OK
+    0.549 Working FDT set to 4af3e000
+    0.549 
+    0.549 Starting kernel ...
+    0.549 
+    0.846 [    0.001188] /cpus/cpu@0 missing clock-frequency property
+    0.846 [    0.001224] /cpus/cpu@1 missing clock-frequency property
+    1.758 heart_beat_kill_pid = 60
+    1.758 heart_beat_timeout = 30
+    2.997 Erlang/OTP 29 [erts-17.1.1] [source] [32-bit] [smp:2:2] [ds:2:2:10] [async-threads:1]
+    2.997 
+    4.568 Interactive Elixir (1.20.4) - press Ctrl+C to exit (type h() ENTER for help)
+    5.301 [38;5;24m████▄▄    [38;5;74m▐███
+    5.321 [38;5;24m█▌  ▀▀██▄▄  [38;5;74m▐█
+    5.321 [38;5;24m█▌  [38;5;74m▄▄  [38;5;24m▀▀  [38;5;74m▐█   [39mN  E  R  V  E  S
+    5.321 [38;5;24m█▌  [38;5;74m▀▀██▄▄  ▐█
+    5.342 [38;5;24m███▌    [38;5;74m▀▀████[0m
+    5.342 [0mboot_bench 0.1.0 - garlic-mimic (6c89d7fa-3fc7-5c96-9d36-5563f5a64ad6)
+    5.342 
+    5.342   Serial       : 0123B817BD12A177EE
+    5.342 [0m  Uptime       : 3.746 seconds
+    5.342 [0m  Clock        : [33m2026-10-20 19:44:59 UTC (unsynchronized)[0m
+    5.362 [0m
+    5.362   Firmware     : [32mValid (B)               [0mApplications : 39 started[0m
+    5.362   Memory usage : 52 MB (21%)             [0mPart usage   : 9 MB (6%)[0m
+    5.362   Load average : 0.00 0.00 0.00          [0mTemperature  : N/A[0m
+    5.382   Hostname     : nerves-0123b817bd12a177e[0mPlatform     : trellis arm[0m
+    5.382 
+    5.382   usb0         : 172.31.3.157/30, fe80::54:52ff:fe4c:2/64
+    5.382 [0m
+    5.382 Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
+    5.402 [0m
+    5.402 [38;5;42mToolshed[0m imported.
+    5.424 iex(1)> 
