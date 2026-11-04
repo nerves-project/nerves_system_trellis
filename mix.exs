@@ -60,7 +60,7 @@ defmodule NervesSystemTrellis.MixProject do
         {"TARGET_GCC_FLAGS",
          "-mabi=aapcs-linux -mfpu=neon-vfpv4 -marm -fstack-protector-strong -mfloat-abi=hard -mcpu=cortex-a7 -fPIE -pie -Wl,-z,now -Wl,-z,relro"}
       ],
-      checksum: package_files()
+      checksum: source_finger_print_files()
     ]
   end
 
@@ -101,7 +101,7 @@ defmodule NervesSystemTrellis.MixProject do
     ]
   end
 
-  defp package_files do
+  defp source_finger_print_files do
     [
       "fwup_include",
       "linux",
@@ -110,17 +110,24 @@ defmodule NervesSystemTrellis.MixProject do
       "busybox.fragment",
       "dts",
       "trellis.its",
-      "CHANGELOG.md",
       "fwup-ops.conf",
       "fwup.conf",
-      "LICENSES",
       "mix.exs",
       "nerves_defconfig",
       "post-build.sh",
-      "post-createfs.sh",
-      "README.md",
-      "VERSION"
+      "post-createfs.sh"
     ]
+  end
+
+  defp package_files do
+    [
+      "CHANGELOG.md",
+      "checksum.exs",
+      "LICENSES",
+      "README.md",
+      "REUSE.toml",
+      "VERSION"
+    ] ++ source_finger_print_files()
   end
 
   defp build_runner_opts() do
