@@ -12,6 +12,17 @@ follows:
    releases, and Linux kernel updates. They're also made to fix bugs and add
    features to the build infrastructure.
 
+## v0.6.1
+
+This is a security and bug fix release.
+
+* Changes
+  * Use CRC32 for FIT image hashes to reduce boot time
+
+* Package updates
+  * [nerves_system_br 1.35.3](https://github.com/nerves-project/nerves_system_br/releases/tag/v1.35.3)
+  * [Buildroot 2026.08.1](https://lore.kernel.org/buildroot/buildroot-2026.08.1-announce-1792682049@buildroot.org/T/)
+
 ## v0.6.0
 
 This is a major Buildroot update with security and feature updates throughout.
