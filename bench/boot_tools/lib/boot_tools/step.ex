@@ -54,6 +54,10 @@ defmodule BootTools.Step do
       copy_beam!(release)
     end
 
+    # Also here: the system's rootfs can be created before this project's
+    # rootfs_creation_steps run.
+    prune_missing(release)
+
     if System.get_env("BOOT_TRACE", "1") == "1" do
       mod_app =
         for {app, props} <- release.applications, m <- Keyword.get(props, :modules, []), into: %{},
@@ -63,6 +67,35 @@ defmodule BootTools.Step do
         instrument_file!(path, mod_app)
       end
     end
+
+    release
+  end
+
+  @doc """
+  Drop modules whose .beam is no longer in the release from the boot
+  script's primLoad groups. Tools that delete modules after the boot script
+  is written (nerves_treeshake) otherwise leave an embedded-mode release that
+  fails to boot.
+  """
+  def prune_missing(%Mix.Release{} = release) do
+    boot = Path.join([release.path, "releases", release.version, "start.boot"])
+
+    present =
+      (Path.wildcard(Path.join([release.path, "lib", "*", "ebin", "*.beam"])) ++
+         Path.wildcard(Path.join([release.path, "releases", release.version, "consolidated", "*.beam"])))
+      |> MapSet.new(&(&1 |> Path.basename(".beam") |> String.to_atom()))
+
+    rewrite!(boot, fn instrs ->
+      Enum.map(instrs, fn
+        {:primLoad, ms} ->
+          kept = Enum.filter(ms, &(MapSet.member?(present, &1) or :code.which(&1) == :preloaded))
+          if length(kept) != length(ms), do: Mix.shell().info("* boot script: dropped #{length(ms) - length(kept)} missing modules")
+          {:primLoad, kept}
+
+        i ->
+          i
+      end)
+    end)
 
     release
   end

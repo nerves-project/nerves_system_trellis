@@ -746,6 +746,44 @@ gains more than that. Over WiFi `ssh_k` hides it: wlan0 only gets its address
 at ~8.5 s. The bench app's lock now uses 1.3.3; Livebook's patch still pins
 1.3.2.
 
+### nerves_treeshake (2026-11-05)
+
+Stack brought up to date first: `main` merged (nerves_system_br 1.35.3,
+Buildroot 2026.08.1, system 0.6.1), nerves `v2` @ 5202a44 (2.0.0-pre.5),
+Elixir 1.20.5; OTP still 29.1.2. [nerves_treeshake](https://github.com/nerves-project/nerves_treeshake)
+@ 017c12b (treeshake @ 82c314a), set up as in circuits_quickstart
+(`BOOT_TREESHAKE=1`, README workarounds, plus boot_tools' modules kept).
+
+What it removes from the template app: 107 of 1,080 modules and 2,885
+functions; beams 12.86 → 11.02 MB (−14%), rootfs −2 MB, firmware 24.8 →
+24.0 MB. None of the 356 modules the boot loads in interactive mode is
+removed; they shrink 4,454 → 4,365 KB (−2%, mostly `elixir_parser` −622
+functions and `erl_parse` −544).
+
+| label | mode | apps_k | iex_k | U-Boot → IEx | modules loaded |
+| --- | --- | --- | --- | --- | --- |
+| base-up | interactive + preload (current best) | 3.868 | 4.257 | 5.103 | 439 |
+| ts | same + treeshake | 3.892 | 4.293 | 5.144 | 439 |
+| emb-base-up | `-mode embedded` | 7.307 | 7.628 | 8.475 | 1,081 |
+| emb-ts | embedded + treeshake | **6.858** | **7.206** | **8.041** | 995 |
+
+Interactive mode: no change (within ±0.05 s); unused modules were never
+loaded, and 89 KB less code is ~20 ms of prepare time. Embedded mode, which
+loads everything: −0.43 s.
+
+Embedded mode needed a fix: nerves_treeshake deletes modules after the boot
+script is written, so `start.boot` still lists 86 removed modules and the
+firmware dies with `{load_failed,[pg2]}` (Nerves then falls back to the
+other slot). `BootTools.Step.prune_missing/1` drops missing modules from the
+`primLoad` groups. It has to run in a post-assembly step after treeshake's:
+this project's `rootfs_creation_steps` run after the system has already
+packed the EROFS image. The proper fix belongs in nerves_treeshake (rewrite
+the boot scripts like it rewrites the `.app` files).
+
+Functional checks on the treeshaken embedded firmware: all 39 apps start;
+usb0, WiFi (`:internet`), NTP, ssh, `Code.eval_string`, `:erl_scan` and an
+HTTPS `:httpc` request work.
+
 ## Ideas queue (ranked by expected gain on boot-to-IEx)
 
 1. Interactive code loading instead of embedded preload (`-mode interactive`).

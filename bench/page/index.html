@@ -200,6 +200,7 @@ footer { color: var(--muted); font-size: 13px; }
         <tbody>
           <tr><td><b>Load embedded mode's module groups in one pass</b><br>OTP prepares each application's group in parallel, but one group at a time.</td><td class="num">Livebook IEx 16.61 → 15.18 s<br>template −0.35 s</td><td><span class="pill adopt">propose</span></td></tr>
           <tr><td><b>Start the boot script's applications concurrently</b> (<code>ensure_all_started/3</code>, concurrent mode)</td><td class="num">template: apps −0.8 s, usb0 IPv4 −1.2 s<br>prompt and Livebook unchanged</td><td><span class="pill">opt-in option</span></td></tr>
+          <tr><td><b>nerves_treeshake</b> (static removal of unused modules and functions)</td><td class="num">interactive: none<br>embedded: −0.43 s</td><td><span class="pill">no gain with preload</span></td></tr>
           <tr><td>Bounded pool instead of one process per module in <code>code:ensure_modules_loaded/1</code></td><td class="num">+0.07 to +0.35 s</td><td><span class="pill">no</span></td></tr>
           <tr><td><code>prepare_loading</code> on a dirty CPU scheduler (OTP patch, built)</td><td class="num">best result unchanged</td><td><span class="pill">no</span></td></tr>
           <tr><td>Drop <code>erl_lint</code>/<code>erl_eval</code> from the mandatory first module group</td><td class="num">within noise</td><td><span class="pill">no</span></td></tr>

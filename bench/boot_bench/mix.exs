@@ -6,7 +6,8 @@ defmodule BootBench.BootAction do
   def post_extract(plan, _opts), do: plan
   def pre_assemble_steps(_plan, release, _opts), do: release
   def post_assemble_steps(_plan, release, _opts), do: apply(BootTools.Step, :run, [release])
-  def rootfs_creation_steps(_plan, release, _opts), do: release
+  # Runs after every action's post_assemble step (e.g. nerves_treeshake).
+  def rootfs_creation_steps(_plan, release, _opts), do: apply(BootTools.Step, :prune_missing, [release])
   def pre_image_creation(_plan, _opts), do: :ok
   def image_creation(_plan, _opts), do: :ok
   def post_image_creation(_plan, _opts), do: :ok
@@ -54,6 +55,8 @@ defmodule BootBench.MixProject do
       {:logger_backends, "~> 1.0"},
       {:ring_logger, "~> 0.11.0"},
       {:boot_tools, path: "../boot_tools"},
+      # Experiment: BOOT_TREESHAKE=1 (see config/target.exs); a no-op otherwise.
+      {:nerves_treeshake, github: "nerves-project/nerves_treeshake", runtime: false},
       {:toolshed, "~> 0.5.0", runtime: !String.contains?(System.get_env("BOOT_LOAD_ONLY", ""), "toolshed")},
 
       # Allow Nerves.Runtime on host to support development, testing and CI.

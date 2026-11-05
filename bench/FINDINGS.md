@@ -113,6 +113,16 @@ Details: EXPERIMENTS.md, "Ideas for Erlang/OTP".
   measured), dropping `erl_lint`/`erl_eval` from the mandatory first group,
   stripping `Line`/`Type` chunks.
 
+## nerves_treeshake
+
+No gain with the recommended setup (interactive mode + preload): it removes
+14% of the beams, but not the ones the boot loads, which only shrink 2%.
+In embedded mode, which loads everything, it saves 0.43 s (IEx 7.63 →
+7.21 s), still far behind interactive mode (4.26 s). Embedded mode only
+boots with treeshake if the boot script is pruned of the removed modules
+(`BootTools.Step.prune_missing/1`; nerves_treeshake should do this itself).
+It does make the firmware smaller (−0.8 MB, rootfs −2 MB).
+
 ## nerves_ssh 1.3.3
 
 Update. 1.3.2 burns 3.4 s of CPU on the T113 at every boot (OTP's

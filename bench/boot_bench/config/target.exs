@@ -99,6 +99,38 @@ config :mdns_lite,
 
 # import_config "#{Mix.target()}.exs"
 
+# Experiment: nerves_treeshake removes modules and functions it can't reach
+# statically. Workarounds from its README and circuits_quickstart, plus the
+# boot_tools modules that only the boot script and the bench call.
+if System.get_env("BOOT_TREESHAKE") == "1" do
+  config :nerves_treeshake,
+    enabled: true,
+    keep_applications: [
+      :vintage_net,
+      :vintage_net_wifi,
+      :vintage_net_direct,
+      :nerves_time,
+      :toolshed,
+      :boot_tools
+    ],
+    keep: [
+      mfa: {:tls_record, :lowest_protocol_version, 1},
+      mfa: {:tls_record, :highest_protocol_version, 1},
+      behaviour_impls: :gen_statem,
+      mod: :tls_dtls_client_connection,
+      mfa: {:tls_gen_connection, :close, 4},
+      mfa: {:tls_handshake_1_3, :path_validation, 10},
+      mfa: {:ssl_handshake, :path_validation, 10},
+      mod: :boot_trace,
+      mod: :boot_preload,
+      mod: :boot_eload,
+      mod: :boot_concurrent,
+      mod: :boot_defer,
+      mod: :boot_bundle
+    ],
+    debug: true
+end
+
 # Diagnostic builds: keep debug logs (RingLogger) to trace network bring-up.
 if System.get_env("BOOT_DIAG") == "1" do
   config :logger, level: :debug
