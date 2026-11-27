@@ -73,6 +73,20 @@ If you need custom modifications to this system for your device, see the
 [Nerves documentation on customizing
 systems](https://hexdocs.pm/nerves/customizing-systems.html).
 
+### Igniter
+
+If your project uses [Igniter](https://igniter.hexdocs.pm), this system can be
+added to an existing Nerves project by running:
+
+```sh
+mix igniter.install nerves_system_trellis
+```
+
+This adds `nerves_system_trellis` to the `mix.exs` dependencies for the
+`trellis` target and adds `:trellis` to `@all_targets` if the project has it.
+Existing targets are kept. The installer doesn't have any options. It requires
+Nerves 2.0 or later.
+
 ## U-Boot
 
 It's possible to break into U-Boot via the debug UART by holding down the enter
